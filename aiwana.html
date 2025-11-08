@@ -102,9 +102,24 @@ var sprConveyer = loadLocalSprite("conveyer.png")
 var sprConveyer2 = loadLocalSprite("conveyer2.png")
 
 
+// Source - https://stackoverflow.com/
+// Posted by Rafał S, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-11-07, License - CC BY-SA 3.0
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+        y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+    };
+}
 
 
+canvas.addEventListener("mousedown", function(e){
+    player.x = getMousePos(canvas, e).x
+    player.y = getMousePos(canvas, e).y
 
+})
 
 
 window.addEventListener("keydown", function(e) {
@@ -262,24 +277,25 @@ var levels = [
     "# p %#55  xxx  #  #  WWW#" +
     "#%%%%#%%%%%%%xxxxx#%%%%##",
     "#########################" +
-    "#                       #" +
-    "#   p                   #" +
-    "######                  #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#                       #" +
-    "#              w        #" +
+    "#            u          #" +
+    "#     uu   u   u   u    #" +
+    "#psb u   u       u    ^ #" +
+    "###dddddddcccdddddddCCC #" +
+    "#  vVVV#VVXVVVVVVVVVVv  #" +
+    "#         V             #" +
+    "#                       #" + 
+    "#  ^            5       #" +
+    "#  X   u        X   ^ bs#" +
+    "# s#jjjjjjjjjjjj#jjj#j###" +
+    "# #######################" +
     "#                       #" +
     "#                       #" +
     "#                       #" +
-    "#%%%#%%%%%%%%%%%%%%%%%%%#"
+    "#                       #" +
+    "#                       #" +
+    "#                       #" +
+    "w%%%#%%%%%%%%%%%%%%%%%%%#",
+    
 ];
 
 function loadLevel(number) {
@@ -436,7 +452,7 @@ function Water(x, y) {
     this.height = 32;
     this.collide = function(other){
         other.djump = 1;
-        other.vsp = Math.min(Math.max(other.vsp, -5), 1);
+        other.vsp = Math.min(other.vsp, 1);
     };
     this.render = function() {
        sprite(sprWater, this.x, this.y)
@@ -938,6 +954,7 @@ function systemUpdate() {
         for (i = 0, l = platforms.length; i < l; i++) platforms[i].render();
         for (i = 0, l = bullets.length; i < l; i++) bullets[i].render();
         for (i = 0, l = blood.length; i < l; i++) blood[i].render();
+        
         warp.render();
         player.render();
 
