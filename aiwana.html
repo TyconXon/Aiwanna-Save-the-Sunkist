@@ -327,7 +327,7 @@ function findWall(self, offx, offy, group = walls) {
     if (!self.platform && !a){
         combinedGroup = group.concat(crates)
     }
-    if(self.platform){
+    if(self.platform || (self.touchplat)){
         combinedGroup = combinedGroup.concat(platforms)
     }
     for (var i = 0, l = combinedGroup.length; i < l; i++) {
@@ -395,25 +395,26 @@ var levels = [
     "# P@          +## V   ! #" +
     "# P  @    |   +z | /%   #" +
     "#%%ccccCCCDDddc##%%%#%5%#",
-    "%%%%%%%%%%%%%%%%%%%%%%%%%" +
-    "#vvvvvvvvv   #          #" +
-    "#p s         # h  H     #" +
-    "#%-% 5    ^  #      y  +#" +
-    "gPPPW#  - # <#      y   #" +
-    "#    #    #  #    y y   #" +
-    "#   <# ++ #] #          #" +
-    "#.   #xxxx# [## j## ###-#" +
-    "#    # Vv XPP#   #    ###" +
-    "#    v    #  #   #  ~   #" +
-    "#     5   #  v  s#      #" +
-    "#ccccccccT#     ##~~~~  #" +
-    "#w   ######555^###      #" +
-    "####P^   #########      #" +
-    "#### ###P^              #" +
-    "#    ### #########      #" +
-    "#                       #" +
-    "#                      ~#" +
-    "#^^^^^^^^^^^^^^^^^^^^^^^#",
+   //1234567890123456789012345
+    "%PPPPPPPPPPP##%%%%%%%XXX%" + //1
+    "#            #s  +  '   #" + //2
+    "#p s         ## +^      #" + //3
+    "#%-% 5    ^  #   %PHP   #" + //4
+    "gPPPW%  - % <#    hP%   #" + //5
+    "#    #    #  #.H eeE#jjj#" + //6 
+    "#   <# ++ #] #   ##s+vvvE" + //7
+    "#.   #xxxx# [#H.H##____.E" + //8
+    "#    # Vv XPP#P . e     E" + //9
+    "#    v    #  #    eCCCCC#" + //10
+    "#     5   #     sq      #" + //11
+    "#ccccccccT#     %%%%%%%e#" + //12
+    "#w   ######555^##V#e    #" + //13
+    "#%%%P^   #Q====Qe  e    #" + //14
+    "#### %%%P^        E     #" + //15
+    "#    ### %%Q %=%%%      #" + //16
+    "#           v v         #" + //17
+    "#                      ~#" + //18
+    "#55555555555555555555555#",  //19
     
 ];
 var layers = [
@@ -422,27 +423,28 @@ var layers = [
     false,
     [
         {
-            offset: [0, 0],
+            offset: [0, 16],
             tileset : 1, // 1:Normal, 2:Background, 3:Datalayer
-            map:    "                          " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         " +
-                    "                         ",
+                   //1234567890123456789012345
+            map:    "666666666666             " + //1
+                    "                         " + //2
+                    "                         " + //3
+                    "                   <     " + //4
+                    "                         " + //5
+                    "                  WWWWWWW" + //6
+                    "                  WWWWWWW" + //7
+                    "                  WWWWWWW" + //8
+                    "               P  WWWWWWW" + //9
+                    "                  WWWWWWW" + //10
+                    "                  WWWWWWW" + //11
+                    "                e        " + //12
+                    "                         " + //13
+                    "         #               " + //14
+                    "                 #       " + //15
+                    "            P            " + //16
+                    "                      P  " + //17
+                    "                         " + //18
+                    "                         ",  //19
         }
     ]
 ];
@@ -478,7 +480,9 @@ function loadLevel(number) {
     for (var i = 0; i < 25 * 19; i++) {
         tileset(1,data,i)
     }
-    // if (number==1) spikes.push(new SpikeDown(352,176));
+    if (number==3) color = "#322d34";
+    if (number==1) color = "#d6cabe";
+    
     updateMarquee();
 }
 
@@ -553,10 +557,10 @@ function tileset(number, data, i, offset = [0,0]) {
             if (c == 'J') fake.push(new Jumper(cx, cy, 20, sprJumpest));
 
             if (c == 'c') walls.push(new Conveyer(cx, cy, 1));
-            if (c == 'C') walls.push(new Conveyer(cx, cy, 5));
+            if (c == 'C') walls.push(new Conveyer(cx, cy, 4));
 
             if (c == 'd') walls.push(new Conveyer(cx, cy, -1));
-            if (c == 'D') walls.push(new Conveyer(cx, cy, -5));
+            if (c == 'D') walls.push(new Conveyer(cx, cy, -4));
 
             // if (c == 'y') crates.push(new Crate(cx, cy, false, 25, 25));
             if (c == "H") platforms.push(new WallPlat(cx,cy,sprWall,1,0))
@@ -618,9 +622,9 @@ function WallPlat(x, y, spr = sprPanel, xv = 0, yv = 0) {
     this.vsp = yv ;
     this.render = function() {
         sprite(this.sprite, this.x, this.y);
-        if(this.hsp || this.vsp){
-            this.update()
-        }
+        // if(this.hsp || this.vsp){
+        //     this.update()
+        // }
     };
     this.platform = true;
 
@@ -861,6 +865,7 @@ function SpikeDown(x, y, vsp = 0) {
     this.width = 32;
     this.height = 32;
     this.vsp = vsp;
+    this.spike = true;
     this.render = function() {
         sprite(sprSpikeDown, this.x, this.y)
     };
@@ -877,7 +882,7 @@ function SpikeDown(x, y, vsp = 0) {
         with(this) {
             coll = findWall(this, 0, vsp) || findWall(this,0,vsp,blocker);;
             if (coll) vsp = -vsp;
-            y += vsp    ;
+            y += vsp;
         }
     };
 }
@@ -887,6 +892,8 @@ function SpikeLeft(x, y) {
     this.y = y;
     this.width = 32;
     this.height = 32;
+    this.spike = true;
+
     this.render = function() {
         sprite(sprSpikeLeft, this.x, this.y)
     };
@@ -906,6 +913,8 @@ function SpikeRight(x, y, hsp = 0, random = false) {
     this.width = 32;
     this.height = 32;
     this.hsp = hsp;
+    this.spike = true;
+
     this.render = function() {
         sprite(sprSpikeRight, this.x, this.y)
     };
@@ -1091,8 +1100,9 @@ function Kid(x, y) {
             if (h != 0) xscale = h;
             hsp = h * 3;
             x += hsp;
-            coll = findWall(this, 0, 0)
-            if (coll) {
+            coll = findWall(this, 0, 0) || findWall(this, 0, 0, platforms)
+            if (coll && (!coll.platform || (coll.platform && coll.wallplat))) {
+                if(!coll.wallplat || (coll.wallplat && intersectRect(this, coll, coll.hsp, coll.vsp)))
                 if (x < coll.x) x = coll.x - width;
                 else x = coll.x + coll.width;
                 if (coll.collide) {
@@ -1104,10 +1114,6 @@ function Kid(x, y) {
             coll = findWall(this, 0, 0, fake);
             if (coll && coll.collide) {
                 coll.collide(this);
-            }
-            coll =  findWall(this,0,0,platforms);
-            if (coll && coll.wallplat){
-                
             }
             if (vkZ) {
                 if (!zlk) {
@@ -1150,7 +1156,7 @@ function Kid(x, y) {
                 else sprite = sprPlayerFall;
                 frspd = 0.5;
                 frnum = 2;
-                coll = findWall(this, 0, 0);
+                coll = findWall(this, 0, 0) ;
                 if (coll) {
                     if (y < coll.y && vsp >= 0) jump = 0;
                     else {y = coll.y + coll.height;
@@ -1167,6 +1173,8 @@ function Kid(x, y) {
                 coll = platforms[i];
                 if (intersectRect(this, coll, 0, coll.vsp + 1)) {
                     onplatform = 1;
+                    if (coll.kill) kill()
+
                     x += coll.hsp;
                     // if(coll.wallplat) y += coll.vsp;
                     coll2 = findWall(this, 0, 0, "just");
@@ -1174,15 +1182,20 @@ function Kid(x, y) {
                         if (x < coll2.x) x = coll2.x - width;
                         else x = coll2.x + coll2.width;
                     }
-                    if (y + (coll.wallplat?0:12) - vsp / 2 <= coll.y) {
+                    
+                    if ((y + 12 - vsp / 2 <= coll.y)) {
                         y = coll.y - height;
                         if (vsp >= 0) jump = 0;
                         vsp = 0;
                     }else if(intersectRect(this, coll, 0, 1 + coll.vsp) && coll.vsp > 0 && findWall(this,0,1,"just") && coll.wallplat){
                         kill()
                     }
-                    let coll3 = findWall(this,0,-1,"just")
-                    if (coll3 && coll.wallplat && coll.vsp < 0) kill()
+                    // if (findWall(this,0,-1,"just") && coll.wallplat && coll.vsp < 0) kill()
+                    // if (findWall(this ,0,1,"just") && coll.wallplat && coll.vsp > 0) kill()
+                    if (findWall(this,1,0,"just") && coll.wallplat && coll.hsp > 0 && y-0.5 > coll.y) kill()
+                    if (findWall(this,-1,0,"just") && coll.wallplat && coll.hsp < 0 && y-0.5 > coll.y) kill()
+                    if (intersectRect(this,coll,0,-1) && coll.wallplat) {y = coll.y + coll.height; vsp = Math.max(0,coll.vsp)}
+                    
                 }
             }
             for (var i = 0, l = crates.length; i < l; i++) {
@@ -1290,17 +1303,16 @@ function systemUpdate() {
     readInput();
     if (!started) {
         con2d.fillStyle = "#80ffff";
+        document.querySelector("body").style.backgroundColor = "#80ffff";
         con2d.fillRect(0, 0, 800, 608);
         for (i = 0, l = walls.length; i < l; i++) walls[i].render();
         warp.render();
 
     } else if (!finished) {
         time += 1;
-        for (i = 0, l = saves.length; i < l; i++) saves[i].update();
-        for (i = 0, l = blood.length; i < l; i++) blood[i].update();
-        for (i = 0, l = platforms.length; i < l; i++) platforms[i].update();
-        for (i = 0, l = crates.length; i < l; i++) {if (crates[i].update) {crates[i].update();}};
-        for (i = 0, l = spikes.length; i < l; i++) if (spikes[i].update) {spikes[i].update()};
+        [].concat(spikes,crates,platforms,blood,saves).forEach(element => {
+            if (element.update) element.update();
+        });
         for (i = 0, l = bullets.length; i < l; i++) {
             bullets[i].update();
             if (bullets[i].dead) {
@@ -1311,7 +1323,8 @@ function systemUpdate() {
         }
         player.update();
         if (!(time % 50)) updateMarquee();
-        con2d.fillStyle = `${color}${motionblur?"50":""}`;
+        con2d.fillStyle = `${color}${motionblur?"25":""}`;
+        document.querySelector("body").style.backgroundColor = color;
         con2d.fillRect(0, 0, 800, 608);
         if (!motionblur && !(level == 3)){
             for (i = 0; i < 608; i += 13) {
@@ -1322,14 +1335,9 @@ function systemUpdate() {
             }
         }
 
-        for (i = 0, l = spikes.length; i < l; i++) spikes[spikes.length-(i+1)].render();
-        for (i = 0, l = fake.length; i < l; i++) fake[i].render();
-        for (i = 0, l = walls.length; i < l; i++) walls[i].render();
-        for (i = 0, l = crates.length; i < l; i++) crates[i].render();
-        for (i = 0, l = saves.length; i < l; i++) saves[i].render();
-        for (i = 0, l = platforms.length; i < l; i++) platforms[i].render();
-        for (i = 0, l = bullets.length; i < l; i++) bullets[i].render();
-        for (i = 0, l = blood.length; i < l; i++) blood[i].render();
+         [].concat(spikes,crates,platforms,blood,saves,fake,walls,bullets).forEach(element => {
+            if (element.render) element.render();
+        });
         
         warp.render();
         player.render();
@@ -1372,9 +1380,9 @@ setTimeout(step, interval);
 
 function step() {
     systemUpdate();
-    var dt = Date.now() - expected;
-    expected += interval;
-    setTimeout(step, Math.max(0, interval - dt));
+    // var dt = Date.now() - expected;
+    // expected += interval;
+    setTimeout(step, interval);
 }
 </script>
 </div>
