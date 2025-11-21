@@ -16,15 +16,15 @@ var canvas = document.getElementById('canvas'),
     // con2d.scale(dpr, dpr);
     con2d.imageSmoothingEnabled = false;
     function resizeCanvas() {
-        let scale = Math.min(
-          window.innerWidth / canvas.width,
-          window.innerHeight / canvas.height
-        );
-        if (true) {
-          scale = Math.floor(scale);
-        }
-        canvas.style.width = `${Math.round(scale * canvas.width)}px`;
-        canvas.style.height = `${Math.round(scale * canvas.height)}px`;
+        // let scale = Math.min(
+        //   window.innerWidth / canvas.width,
+        //   window.innerHeight / canvas.height
+        // );
+        // if (true) {
+        //   scale = Math.floor(scale);
+        // }
+        // canvas.style.width = `${Math.round(scale * canvas.width)}px`;
+        // canvas.style.height = `${Math.round(scale * canvas.height)}px`;
       }
 
       resizeCanvas();
@@ -165,8 +165,10 @@ function sprite(img, x, y) {
     con2d.drawImage(img, Math.floor(x), Math.floor(y));
 }
 
-function sprite_ext(img, u, v, w, h, x, y) {
-    con2d.drawImage(img, u, v, w, h, Math.floor(x), Math.floor(y), w, h);
+function sprite_ext(img, u, v, w, h, x, y, ww = false, hh = false) {
+    ww=ww?ww:w
+    hh=hh?hh:h
+    con2d.drawImage(img, u, v, w, h, Math.floor(x), Math.floor(y), ww, hh);
 }
 
 var sprPlayerIdle = loadSprite("iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAACH0lEQVR4nO2WTU7DQAyFK0Wq2ILEhgtwDCS2uQE34Cbd9SA5CMcamIipJo7t+bUnav0kCwRpP783T6OcTiaTyWQymUwmk8lkMplMJpPJZHpEOefYefp7JDXY53qwJfk5bGn/h1CO+a/3F3IkCyDJLzn8Uf5VCthinguhNQBpfo/Dl/SvUUB2CQzsfq67kSyAJD8n/NH+pQtILoHBg+EVBn72DkCDXxq+pn+tApJLcHAsgNorqMZ8L35t+Fr+NQpILkHBsdEogAS/pACj/UsVMLlEWCRu2ubtUygADT7HHu1fq4DsEgswioUgWQBpfqoAR/EvWUByiYWAYe3zM03TbloC0ODnHv4R/EsVEF0ihj+/XdfB2hdPzwC0+DnhH8m/RAF3S3j4Qpj3vwcwFUrLFRizNfhY8ND7CP9c/r0LuFkiBYeDXU+1AeSY782/nM8u5pawj+S/pYC3JeACsSkuAHgVlS6AHQD8Tim+fyYuQfg+GK6m/9L8Wwu4CguBeuvkpuYlxLMDv4Vdww/PeT7G/vj/u5b/mgxaC3hbAi4AQ3j9/N4NZrrmCowLEI9nS/LDc1iYga3pvyb/1gKuCi28gMbHAcAlKGhtAHDgAUjw42cx3yP8a+e/CQILHy7BNa42ADiQDQ+oF5/6nBZ/tH92iRQsZ5lathafC+8R/JNLpF5yer4E5ZiX4ueGf6/+ySXmeXbY5P6/NQAtPlWAe/b/C97fIhbuV2oAAAAAAElFTkSuQmCC");
@@ -208,7 +210,19 @@ var sprConveyer2 = loadLocalSprite("assets/sprites/conveyer2.png")
 var sprVineL = loadLocalSprite("assets/sprites/walljumpL.png")
 var sprVineR = loadLocalSprite("assets/sprites/walljumpR.png")
 var sprPanel = loadLocalSprite("assets/sprites/panel.png")
+var sprPanel2 = loadLocalSprite("assets/sprites/sprBlock2.png")
 var sprRestart = loadLocalSprite("assets/sprites/game-over.png")
+var sprPauser = loadLocalSprite("assets/sprites/pauser.png")
+var sprStick = loadLocalSprite("assets/sprites/sticky.png")
+var sprHuh = loadLocalSprite("assets/sprites/huh.png")
+var sprHuh2 = loadLocalSprite("assets/sprites/huh2.png")
+var sprStars = loadLocalSprite("assets/sprites/bStars.png")
+var sprMegaman = loadLocalSprite("assets/sprites/bMegaman.png")
+var sprTree = loadLocalSprite("assets/sprites/bTree.png")
+var sprFruit = loadLocalSprite("assets/sprites/fruit.png")
+var sprFruit2 = loadLocalSprite("assets/sprites/fruit2.png")
+var sprDirt = loadLocalSprite("assets/sprites/dirt.png")
+var sprGrass = loadLocalSprite("assets/sprites/grass.png")
 
 
 const MEGA = "assets/sounds/musMegaman.mp3";
@@ -231,10 +245,138 @@ canvas.addEventListener("mousedown", function(e){
     player.y = getMousePos(canvas, e).y
 
 })
-
-
+let mcx, mcy;
+canvas.addEventListener("mousemove", function(e){
+    mcx = getMousePos(canvas, e).x
+    mcy = getMousePos(canvas, e).y
+})
+let history = [];
+let wallsLength = 0;
+let fakeLength = 0;
+let spikesLength = 0;
+let platformsLength = 0;
+let blockerLength = 0;
 window.addEventListener("keydown", function(e) {
     if (e.defaultPrevented) return;
+    if(level == 99){
+        // alert("a")
+        c = e.key
+        cx = e.altKey?mcx:Math.floor(mcx/32) * 32
+        cy = e.altKey?mcy:Math.floor(mcy/32) * 32
+        if (c == '#') walls.push(new Wall(cx, cy));
+        if (c == '1') walls.push(new WallStick(cx, cy));
+        if (c == 'e') walls.push(new Wall(cx-16, cy+00));
+        if (c == 'E') walls.push(new Wall(cx+16, cy+00));
+        if (c == 'q') walls.push(new Wall(cx-00, cy+16));
+        if (c == 'Q') walls.push(new Wall(cx+00, cy-16));
+
+        if (c == '%') walls.push(new Wall2(cx, cy));
+        if (c == '?') fake.push(new WallI(cx, cy, false));
+        if (c == '!') walls.push(new WallI(cx, cy));
+
+        if (c == '+') blocker.push(new WallI(cx, cy, true, false));
+
+        if (c == 's') saves.push(new Save(cx, cy));
+        if (c == '~') platforms.push(new Platform(cx, cy, 2, 0));
+        if (c == '_') platforms.push(new Platform(cx, cy+16, 0, 0));
+        if (c == '-') platforms.push(new Platform(cx, cy, 0, 1));
+        if (c == '0') platforms.push(new Platform(cx, cy, 0, 2));
+
+        if (c == '=') platforms.push(new Platform(cx, cy, 0, 0));
+
+        if (c == '^') spikes.push(new SpikeUp(cx, cy));
+
+        if (c == '6') spikes.push(new SpikeUp(cx, cy-16));
+        if (c == '5') spikes.push(new SpikeUp(cx, cy+16));
+        if (c == 'x'){ spikes.push(new SpikeUp(cx-16, cy));spikes.push(new SpikeDown(cx+1, cy));}
+        if (c == 'X'){ spikes.push(new SpikeBlock(cx, cy));}
+        if (c == '7'){ spikes.push(new SpikeDown(cx-16 , cy));}
+        if (c == "'"){ spikes.push(new SpikeDown(cx+16 , cy));}
+
+        if (c == '/'){ spikes.push(new SpikeUp(cx+16 , cy));}
+        if (c == ')'){ spikes.push(new SpikeUp(cx+20 , cy));}
+
+        if (c == '|'){ spikes.push(new SpikeUp(cx-16 , cy));}
+
+
+
+        if (c == 'V') spikes.push(new SpikeDown(cx, cy));
+        if (c == 'v') spikes.push(new SpikeDown(cx, cy-16));
+
+        if (c == 'u') spikes.push(new SpikeDown(cx, cy, 2));
+        if (c == 'U') {spikes.push(new SpikeDown(cx, cy-05));  fake.push(new WallI(cx, cy, false));}
+
+        if (c == '<') spikes.push(new SpikeLeft(cx, cy));
+        if (c == '>') spikes.push(new SpikeRight(cx, cy));
+        if (c == '{') spikes.push(new SpikeLeft(cx-16, cy));
+        if (c == '}') spikes.push(new SpikeRight(cx+16, cy));
+        if (c == '[') spikes.push(new SpikeLeft(cx+16, cy));
+        if (c == ']') spikes.push(new SpikeRight(cx-16, cy));
+        if (c == '.') spikes.push(new SpikeRight(cx, cy, 1));
+        if (c == '@') spikes.push(new SpikeRight(cx, cy, Math.random()*3));
+
+
+        if (c == 'b') blocker.push(new Blocker(cx, cy));
+        if (c == 'w') warp = new Warp(cx, cy);
+        if (c == 'W') fake.push(new Water(cx, cy));
+
+        if (c == 'j') {fake.push(new Jumper(cx, cy, 15, sprJumpy)); blocker.push(new Blocker(cx, cy));}
+        if (c == 'T') {fake.push(new Jumper(cx, cy+5, 15, sprJumpy)); fake.push(new WallI(cx, cy, false));}
+        if (c == 'J') fake.push(new Jumper(cx, cy, 20, sprJumpest));
+
+        if (c == 'c') walls.push(new Conveyer(cx, cy, 1));
+        if (c == 'C') walls.push(new Conveyer(cx, cy, 4));
+
+        if (c == 'd') walls.push(new Conveyer(cx, cy, -1));
+        if (c == 'D') walls.push(new Conveyer(cx, cy, -4));
+
+        // if (c == 'y') crates.push(new Crate(cx, cy, false, 25, 25));
+        if (c == "H") platforms.push(new WallPlat(cx,cy,sprWall,1,0))
+        if (c == "h") platforms.push(new WallPlat(cx,cy,sprWall,0,1))
+
+        if (c == "o") platforms.push(new WallPlat(cx,cy,sprPauser,0,2))
+        if (c == "O") platforms.push(new WallPlat(cx,cy,sprPauser,2,0))
+        if (c == "8") platforms.push(new WallPlat(cx,cy,sprPauser,2,2))
+
+        if (c == 'r') fake.push(new OneWayWall(cx, cy, false));
+        if (c == 'R') fake.push(new OneWayWall(cx, cy, true));
+
+
+        if (c == 'P') walls.push(new Poof(cx, cy));
+        if (c == '$') walls.push(new Poof(cx, cy, 64, 64));
+        if (c == 't') fake.push(new Tree(cx, cy-135));
+
+
+        if (c == 'p') player = new Kid(cx, cy);
+
+        if (walls.length != wallsLength) {wallsLength = walls.length;history.push(["walls",wallsLength])}
+        if (spikes.length != spikesLength) {spikesLength = spikes.length;history.push(["spikes",spikesLength])}
+        if (fake.length != fakeLength) {fakeLength = fake.length;history.push(["fake",fakeLength])}
+        if (blocker.length != blockerLength) {blockerLength = blocker.length;history.push(["blocker",blockerLength])}
+        if (platforms.length != platformsLength) {platformsLength = platforms.length;history.push(["platforms",platformsLength])}
+
+
+        if (c == "Backspace") {
+            if(!e.altKey){
+                let findWall = walls.findIndex((e)=>{return e.x == cx && e.y == cy});
+                if(findWall != -1) walls.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="walls"&&e[1]==findWall}), 1)
+                findWall = fake.findIndex((e)=>{return e.x == cx && e.y == cy});
+                if(findWall != -1) fake.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="fake"&&e[1]==findWall}), 1)
+                findWall = platforms.findIndex((e)=>{return e.x == cx && e.y == cy});
+                if(findWall != -1) platforms.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="platforms"&&e[1]==findWall}), 1)
+                findWall = spikes.findIndex((e)=>{return e.x == cx && e.y == cy});
+                if(findWall != -1) spikes.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="spikes"&&e[1]==findWall}), 1)
+                findWall = blocker.findIndex((e)=>{return e.x == cx && e.y == cy});
+                if(findWall != -1) blocker.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="blocker"&&e[1]==findWall}), 1)
+                findWall = saves.findIndex((e)=>{return e.x == cx && e.y == cy});
+                if(findWall != -1) saves.splice(findWall,1)
+            }else{
+                let lastElement = history.pop();
+                window[lastElement[0]].splice(lastElement[1]-1,1); 
+            }
+            
+        }
+    }
     switch (e.key) {
         case "F2":
             resetGame();
@@ -258,7 +400,9 @@ window.addEventListener("keydown", function(e) {
             vkRight = 1;
             break;
         case "Shift":
-        case "Shift":
+            if(level != 99) loadGame();
+            break;
+        case "r":
             loadGame();
             break;
         case "f":
@@ -279,10 +423,18 @@ window.addEventListener("keydown", function(e) {
         case "k":
             player.kill();
             break;
+        case "=":
+            if(level != 99){
+                level = 99;
+                loadLevel(level);
+            }
+            
+            break;
         default:
             // player.kill();
-            return;
+            break;
     }
+    
     e.preventDefault();
 }, 1);
 window.addEventListener("keyup", function(e) {
@@ -448,8 +600,29 @@ var levels = [
     "#    ###                #" + //17
     "#    ###               ~#" + //18
     "#    P~#                #",  //19
+    //1234567890123456789012345
+    "%%%%%%%Q  Q%%v    V   %%%" + //1
+    "#ps    1  E       ^   ###" + //2
+    "#%%%%  1##E   ^>< V    ##" + //3
+    "#7 '1> 1uuE   V   ^     #" + //4
+    "#   1  1$ E   ^  <V     #" + //5
+    "  ^ 1 <1  1e  V   v      " + //6 
+    " /1[1  1- 1e  ^    +t s  " + //7
+    "%%7 1  1 -1j{ xxxxx%%%%%%" + //8
+    "#7 <1] 1~ 1e       ######" + //9
+    "#   1 [1 ~1e  V     #####" + //10
+    "#  <1^ 1~ 1e            #" + //11
+    "#   #V 1- 1#  ^ ^ ^ ^   #" + //12
+    "# ^P#  1~-1e  v v v v   #" + //13
+    "#5% # ^1  1e  V   V     #" + //14
+    "#%# # V1  1e_^_^_^_^_^  #" + //15
+    "#   #  1++1#VVVVVVVVVV  #" + //16
+    "#] [#   # + O           #" + //17
+    "#> <#s   q+ O           #" + //18
+    "#}w{#%%   #CC55555555555#",  //19
     
 ];
+levels[99] = "p        w";
 var layers = [
     false,
     false,
@@ -479,6 +652,32 @@ var layers = [
                     "                         " + //18
                     "5555555555555555555555555",  //19
         }
+    ],
+    [
+        {
+            offset: [0, 16],
+            tileset : 1, // 1:Normal, 2:Background, 3:Datalayer
+                   //1234567890123456789012345
+            map:    "       Q  Q   WWWWW      " + //1
+                    "              WWWWW      " + //2
+                    "              WWWWW      " + //3
+                    "              WWWWW      " + //4
+                    "              WWWWW      " + //5
+                    "              WWWWW      " + //6
+                    "      {       WWWWW      " + //7
+                    "            ]            " + //8
+                    " ] {                     " + //9
+                    " >                       " + //10
+                    "                         " + //11
+                    " WWW                     " + //12
+                    " WWW                     " + //13
+                    " WWW                     " + //14
+                    "                         " + //15
+                    "        e                " + //16
+                    "                         " + //17
+                    "          e              " + //18
+                    "       #  #              ",  //19
+        }
     ]
 ];
 
@@ -499,7 +698,9 @@ function loadLevel(number) {
     warp = 0;
 
     if (number==3) {color = "#322d34";}
+    if (number==4) {color = "#0000ff";}
     if (number==1) {color = "#d6cabe";}
+    
     sndMusic.play();
     sndMusic.loop = true;
     sndMusic.volume = JSON.parse(localStorage.muted) ? 0 : 0.67;
@@ -535,6 +736,7 @@ function tileset(number, data, i, offset = [0,0]) {
             cx = ((i % 25) * 32) + offset[0];
             cy = ((Math.floor(i / 25)) * 32) + offset[1];
             if (c == '#') walls.push(new Wall(cx, cy));
+            if (c == '1') walls.push(new WallStick(cx, cy));
             if (c == 'e') walls.push(new Wall(cx-16, cy+00));
             if (c == 'g') {walls.push(new Wall(cx-32, cy+00)); spikes.push(new SpikeRight(cx, cy, 5));}
             if (c == 'E') walls.push(new Wall(cx+16, cy+00));
@@ -563,7 +765,7 @@ function tileset(number, data, i, offset = [0,0]) {
             if (c == 'x'){ spikes.push(new SpikeUp(cx-16, cy));spikes.push(new SpikeDown(cx+1, cy));}
             if (c == 'X'){ spikes.push(new SpikeBlock(cx, cy));}
             if (c == '7'){ spikes.push(new SpikeDown(cx-16 , cy));}
-            if (c == '\''){ spikes.push(new SpikeDown(cx+16 , cy));}
+            if (c == "'"){ spikes.push(new SpikeDown(cx+16 , cy));}
 
             if (c == '/'){ spikes.push(new SpikeUp(cx+16 , cy));}
             if (c == ')'){ spikes.push(new SpikeUp(cx+20 , cy));}
@@ -606,9 +808,17 @@ function tileset(number, data, i, offset = [0,0]) {
             if (c == "H") platforms.push(new WallPlat(cx,cy,sprWall,1,0))
             if (c == "h") platforms.push(new WallPlat(cx,cy,sprWall,0,1))
 
+            if (c == "o") platforms.push(new WallPlat(cx,cy,sprPauser,0,2))
+            if (c == "O") platforms.push(new WallPlat(cx,cy,sprPauser,2,0))
+            if (c == "8") platforms.push(new WallPlat(cx,cy,sprPauser,2,2))
+
+            if (c == 'r') fake.push(new OneWayWall(cx, cy, false));
+            if (c == 'R') fake.push(new OneWayWall(cx, cy, true));
+
 
             if (c == 'P') walls.push(new Poof(cx, cy));
-
+            if (c == '$') walls.push(new Poof(cx, cy, 64, 64));
+            if (c == 't') fake.push(new Tree(cx, cy-135));
 
 
             if (c == 'p') player = new Kid(cx, cy);
@@ -644,10 +854,62 @@ function Wall(x, y) {
     this.height = 32;
 
     this.render = function() {
-        if(level != 3){
-            sprite(sprWall, this.x, this.y)
-        }else{
-            sprite(sprChecker, this.x, this.y)
+        switch (level) {
+            case 3:
+                sprite(sprChecker, this.x, this.y)
+                break;
+
+            case 4:
+                sprite(sprDirt, this.x, this.y)
+                break;
+        
+            default:
+                sprite(sprWall, this.x, this.y)
+                break;
+        }
+    };
+}
+function WallStick(x, y) {
+    this.x = x;
+    this.y = y;
+    this.width = 32;
+    this.height = 32;
+    this.sticky = true;
+    this.flash = false;
+
+    this.render = function() {
+        sprite(sprStick, this.x, this.y)
+        if(this.flash){
+            con2d.fillStyle = `rgba(255,0,0,${vkUp?0.5:0.1})`;
+            con2d.fillRect(this.x,this.y,this.width,this.height);
+            this.flash = false;
+        }
+    };
+
+    this.collide = function(other){
+        other.jump = 1;
+        other.djump = 0;
+        this.flash = true;
+        other.vsp = vkUp?0:Math.min(other.vsp, 1);
+    };
+}
+function OneWayWall(x, y, direction) {
+    this.x = x;
+    this.y = y;
+    this.width = 32;
+    this.height = 32;
+    this.direction = direction;
+    this.oneway = true;
+
+    this.render = function() {
+        sprite(this.direction?sprHuh2:sprHuh, this.x, this.y)
+    };
+
+    this.collide = function(other){
+        if( other.x > this.x + 25 && other.x < this.x + this.width && !this.direction){
+            other.x = (this.x + this.width);
+        }else if( other.x+other.width-7 < this.x && other.x+other.width > this.x && this.direction){
+            other.x = this.x - other.width;
         }
     };
 }
@@ -656,8 +918,9 @@ function WallPlat(x, y, spr = sprPanel, xv = 0, yv = 0) {
     this.y = y;
     this.width = 32;
     this.height = 32;
-    this.sprite = sprPanel;
+    this.sprite = spr;
     this.wallplat = true;
+    this.pause = false;
     this.hsp = xv ;
     this.vsp = yv ;
     this.render = function() {
@@ -670,6 +933,7 @@ function WallPlat(x, y, spr = sprPanel, xv = 0, yv = 0) {
 
     this.update = function() {
         with(this) {
+            if(this.pause) return;
             coll = findWall(this, hsp, 0) || findWall(this,hsp,0,blocker);
             if (coll && coll != this) hsp = -hsp;
             x += hsp;
@@ -677,6 +941,11 @@ function WallPlat(x, y, spr = sprPanel, xv = 0, yv = 0) {
             coll = findWall(this, 0, vsp) || findWall(this,0,vsp,blocker);
             if (coll && coll != this) vsp = -vsp;
             y += vsp;
+
+            if(y > 650) y = -40 ;
+            if(y < -65) y = 640 ;
+            if(x > 800) x = 0;
+            if(x < 0) x = 800;
         }
     };
 }
@@ -771,10 +1040,18 @@ function Wall2(x, y) {
     this.width = 32;
     this.height = 32;
     this.render = function() {
-        if(level != 3){
-            sprite(sprWall2, this.x, this.y)
-        }else{
-            sprite(sprChecker2, this.x, this.y)
+        switch (level) {
+            case 3:
+                sprite(sprChecker2, this.x, this.y)
+                break;
+
+            case 4:
+                sprite(sprGrass, this.x, this.y)
+                break;
+        
+            default:
+                sprite(sprWall2, this.x, this.y)
+                break;
         }
     };
 }
@@ -830,6 +1107,15 @@ function Jumper(x, y, power = 20, spriter = sprJumper) {
        sprite(this.spriter, this.x, this.y)
     };
 }
+function Tree(x, y) {
+    this.x = x;
+    this.y = y;
+    this.width = 1;
+    this.height = 1;
+    this.render = function() {
+       sprite(sprTree, this.x, this.y)
+    };
+}
 function Conveyer(x, y, power = 20) {
     this.x = x;
     this.y = y;
@@ -843,11 +1129,11 @@ function Conveyer(x, y, power = 20) {
        sprite(power > 0 ? sprConveyer : sprConveyer2, this.x, this.y)
     };
 }
-function Poof(x, y, power = 20) {
+function Poof(x, y, width = 32, height = 32) {
     this.x = x;
     this.y = y;
-    this.width = 32;
-    this.height = 32;
+    this.width = width;
+    this.height = height;
     this.collide = function(other){
         if (other.bullet){
             this.x = -50;
@@ -856,7 +1142,8 @@ function Poof(x, y, power = 20) {
         }
     };
     this.render = function() {
-       sprite(sprJumpest, this.x, this.y)
+        sprite_ext(sprJumpest, 0, 0, 32, 32, this.x, this.y, width, height)
+
     };
 }
 
@@ -865,6 +1152,7 @@ function SpikeUp(x, y) {
     this.y = y;
     this.width = 32;
     this.height = 32;
+    this.spikedir = 1;
     this.render = function() {
         sprite(sprSpikeUp, this.x, this.y)
     };
@@ -884,6 +1172,7 @@ function SpikeBlock(x, y) {
     this.y = y;
     this.width = 32;
     this.height = 32;
+    this.spikedir = 5;
     this.render = function() {
         sprite(sprKill, this.x, this.y)
     };
@@ -906,6 +1195,7 @@ function SpikeDown(x, y, vsp = 0) {
     this.height = 32;
     this.vsp = vsp;
     this.spike = true;
+    this.spikedir = 2;
     this.render = function() {
         sprite(sprSpikeDown, this.x, this.y)
     };
@@ -933,6 +1223,7 @@ function SpikeLeft(x, y) {
     this.width = 32;
     this.height = 32;
     this.spike = true;
+    this.spikedir = 3;
 
     this.render = function() {
         sprite(sprSpikeLeft, this.x, this.y)
@@ -954,6 +1245,8 @@ function SpikeRight(x, y, hsp = 0, random = false) {
     this.height = 32;
     this.hsp = hsp;
     this.spike = true;
+    this.spikedir = 4;
+
 
     this.render = function() {
         sprite(sprSpikeRight, this.x, this.y)
@@ -975,6 +1268,17 @@ function SpikeRight(x, y, hsp = 0, random = false) {
             x += hsp;
         }
     };
+}
+
+function findSpike(x,y,dir){
+    switch (dir) {
+        case 1:
+            
+            break;
+    
+        default:
+            break;
+    }
 }
 
 
@@ -1065,6 +1369,10 @@ function Bullet(x, y, hsp) {
                 dead = 1;
                 if (coll.collide) {coll.collide(this)}
             }
+            coll = findWall(this, 0, 0, fake);
+            if (coll && coll.oneway) {
+                dead = 1;
+            }
             for (var i = 0, l = blocker.length; i < l; i++) {
                 coll = blocker[i];
                 if (intersectRect(this, coll, 0, 0)) {
@@ -1076,6 +1384,9 @@ function Bullet(x, y, hsp) {
                 coll = platforms[i];
                 if (intersectRect(this, coll, 0, 0)) {
                     dead = 1;
+                    if(coll.sprite == sprPauser){
+                        coll.pause = !coll.pause;
+                    }
                     break;
                 }
             }
@@ -1089,6 +1400,10 @@ function Bullet(x, y, hsp) {
                     break;
                 }
             }
+
+        // if(y > 650) y = -50 ;
+        if(x > 800) dead = 1;
+        if(x < 0) dead = 1;
         }
     };
 }
@@ -1122,11 +1437,15 @@ function Kid(x, y) {
             if (this.xscale == -1) {
                 con2d.restore();
             }
-        }else if(this.dead > 22){
+        }else if(this.dead > 22 && level != 99){
             sprite(sprRestart, (800/2) - (sprRestart.width/2),(608/2) - (sprRestart.height/2))
             // con2d.fillStyle = "red"
             // con2d.fillRect((800/2) - (sprRestart.width/2),(608/2) - (sprRestart.height/2), sprRestart.width, sprRestart.height);
     
+        }
+        if(level == 99){
+            con2d.fillStyle = "rgba(0, 255, 0, 0.5)"
+            con2d.fillRect(Math.floor(mcx/32) * 32, Math.floor(mcy/32) * 32, 32, 32) 
         }
     };
     this.update = function() {
@@ -1220,7 +1539,8 @@ function Kid(x, y) {
                     onplatform = 1;
                     if (coll.kill) kill()
 
-                    x += coll.hsp;
+
+                    if(!coll.pause) x += coll.hsp;
                     // if(coll.wallplat) y += coll.vsp;
                     coll2 = findWall(this, 0, 0, "just");
                     if (coll2) {
@@ -1232,13 +1552,13 @@ function Kid(x, y) {
                         y = coll.y - height;
                         if (vsp >= 0) jump = 0;
                         vsp = 0;
-                    }else if(intersectRect(this, coll, 0, 1 + coll.vsp) && coll.vsp > 0 && findWall(this,0,1,"just") && coll.wallplat){
+                    }else if(intersectRect(this, coll, 0, 1 + coll.vsp)  &&  coll.vsp > 0 && findWall(this,0,1,"just") && coll.wallplat && !coll.pause){
                         kill()
                     }
                     // if (findWall(this,0,-1,"just") && coll.wallplat && coll.vsp < 0) kill()
                     // if (findWall(this ,0,1,"just") && coll.wallplat && coll.vsp > 0) kill()
-                    if (findWall(this,1,0,"just") && coll.wallplat && coll.hsp > 0 && y-0.5 > coll.y) kill()
-                    if (findWall(this,-1,0,"just") && coll.wallplat && coll.hsp < 0 && y-0.5 > coll.y) kill()
+                    if (findWall(this,1,0,"just") && coll.wallplat && coll.hsp > 0 && y-0.5 > coll.y && !coll.pause) kill()
+                    if (findWall(this,-1,0,"just") && coll.wallplat && coll.hsp < 0 && y-0.5 > coll.y && !coll.pause) kill()
                     if (intersectRect(this,coll,0,-1) && coll.wallplat) {y = coll.y + coll.height; vsp = Math.max(0,coll.vsp)}
                     
                 }
@@ -1285,6 +1605,12 @@ function Kid(x, y) {
                     break;
                 }
             }
+
+            if(y > 600) y = -25 ;
+            if(y < -25) y = 600 ;
+            if(x > 790) x = 0;
+            if(x < 0) x = 790;
+
             frame = (frame + frspd) % frnum;
         }
     };
@@ -1324,6 +1650,10 @@ function saveGame() {
         localStorage.time = time;
         localStorage.saved = 1;
     }
+    if(level == 99){
+        localStorage.walls = JSON.stringify(walls);
+        alert(JSON.stringify(walls));
+    }
 };
 let firstload = true
 function loadGame() {
@@ -1336,6 +1666,16 @@ function loadGame() {
         if(firstload) sndMusic.currentTime = parseFloat(localStorage.musicTime);
         firstload = false;
         updateMarquee();
+    }
+    if(level == 99){
+        let wallData = JSON.parse(localStorage.walls) || walls;
+        wallData.forEach(element => {
+            walls.push(new Wall(element.x, element.y))
+        });
+        wallData = JSON.parse(localStorage.spikes) || spikes;
+        wallData.forEach(element => {
+            spikes.push(new Spike(element.x, element.y))
+        });
     }
 };
 
@@ -1374,15 +1714,23 @@ function systemUpdate() {
         }
         player.update();
         if (!(time % 50)) updateMarquee();
-        con2d.fillStyle = `${color}${motionblur?"25":""}`;
+        con2d.fillStyle = `${color}${motionblur?"0f":""}`;
         document.querySelector("body").style.backgroundColor = color;
         con2d.fillRect(0, 0, 800, 608);
-        if (!motionblur && !(level == 3)){
+        if (!motionblur && (level == 1)){
             for (i = 0; i < 608; i += 13) {
                 sprite(sprBack, 96, i);
                 sprite(sprBack, 144, i);
                 sprite(sprBack, 576, i);
                 sprite(sprBack, 624, i);
+            }
+        }
+        if(!motionblur && level == 4){
+            for (i = 0; i < 608; i += 256) {
+                sprite(sprStars, 0,i);
+                sprite(sprStars, 256,i);
+                sprite(sprStars, 256*2,i);
+                sprite(sprStars, 256*3,i);
             }
         }
 
@@ -1400,7 +1748,7 @@ function systemUpdate() {
         }
         con2d.fillStyle = "white";
         con2d.font = "bold 15px "
-        con2d.fillText(`${player.djump} ${vkZ?"Z":""} ${vkUp?"^":""} ${vkLeft?"<":""} ${vkRight?">":""}`, (motionblur?player.x:10), (motionblur?player.y:20));
+        con2d.fillText(`${player.djump} ${vkZ?"Z":""} ${vkUp?"^":""} ${vkLeft?"<":""} ${vkRight?">":""}`, (10), (20));
 
         if (finished) {
             alert("clear");
