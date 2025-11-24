@@ -223,6 +223,7 @@ var sprFruit = loadLocalSprite("assets/sprites/fruit.png")
 var sprFruit2 = loadLocalSprite("assets/sprites/fruit2.png")
 var sprDirt = loadLocalSprite("assets/sprites/dirt.png")
 var sprGrass = loadLocalSprite("assets/sprites/grass.png")
+var sprLogos = loadLocalSprite("assets/sprites/logos.png")
 
 
 const MEGA = "assets/sounds/musMegaman.mp3";
@@ -888,7 +889,7 @@ function WallStick(x, y) {
 
     this.collide = function(other){
         other.jump = 1;
-        other.djump = 0;
+        // other.djump = 0;
         this.flash = true;
         other.vsp = vkUp?0:Math.min(other.vsp, 1);
     };
@@ -1696,8 +1697,9 @@ function systemUpdate() {
         con2d.fillStyle = "#80ffff";
         document.querySelector("body").style.backgroundColor = "#80ffff";
         con2d.fillRect(0, 0, 800, 608);
-        for (i = 0, l = walls.length; i < l; i++) walls[i].render();
-        warp.render();
+        // for (i = 0, l = walls.length; i < l; i++) walls[i].render();
+        sprite(sprLogos,0,0)
+        // warp.render();
 
     } else if (!finished) {
         time += 1;
