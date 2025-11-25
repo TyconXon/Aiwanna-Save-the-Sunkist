@@ -2,7 +2,8 @@
 <body style="background-color:#d6cabe;">
 <div style="text-align:center;">
 <h1>Aiwana save the sunkist!</h1>
-engine by renex, levels by Maximus Miller 2
+engine by renex, major modifications and levels by Maximus Miller 2<br>
+controls: arrow keys, space, shift, z, p, f, b, f2, m, k
 <h2 id="timer"></h2>
 <canvas id="canvas" width="800" height="608" style="display:inline-block;width:800px;aspect-ratio:800/608;"></canvas>
 <br>
@@ -196,6 +197,7 @@ var sndPain = loadAudio("T2dnUwACAAAAAAAAAAAzzKAxAAAAAMe1D5YBHgF2b3JiaXMAAAAAAUS
 var sndChange = loadLocalAudio("assets/sounds/BlockChange.wav");
 var sndDie = loadLocalAudio("assets/sounds/musOnDeath.ogg");
 var sndDie = loadLocalAudio("assets/sounds/musOnDeath.ogg");
+var sndFruit = loadLocalAudio("assets/sounds/19347_martian_chorused_bounces_06.wav");
 var sndMusic = loadLocalAudio("assets/sounds/musGuyRock.ogg");
 var sndTrap = loadLocalAudio("assets/sounds/sndSpikeTrap.wav");
 var sndGlass = loadLocalAudio("assets/sounds/shatter.wav");
@@ -203,7 +205,7 @@ var sprWater = loadLocalSprite("assets/sprites/water2.png")
 var sprJumper = loadLocalSprite("assets/sprites/jumper.png")
 var sprJumpy = loadLocalSprite("assets/sprites/jumpy.png")
 var sprJumpest = loadLocalSprite("assets/sprites/glass.png")
-var sprKill = loadLocalSprite("assets/sprites/block.png")
+var sprKill = loadLocalSprite("assets/sprites/1.png")
 var sprChecker = loadLocalSprite("assets/sprites/checker.png")
 var sprChecker2 = loadLocalSprite("assets/sprites/checkerlight.png")
 var sprConveyer = loadLocalSprite("assets/sprites/conveyer.png")
@@ -225,6 +227,12 @@ var sprFruit2 = loadLocalSprite("assets/sprites/fruit2.png")
 var sprDirt = loadLocalSprite("assets/sprites/dirt.png")
 var sprGrass = loadLocalSprite("assets/sprites/grass.png")
 var sprLogos = loadLocalSprite("assets/sprites/logos.png")
+var sprDarker = loadLocalSprite("assets/sprites/darker.png")
+var sprDark = loadLocalSprite("assets/sprites/dark.png")
+var sprDim = loadLocalSprite("assets/sprites/dim.png")
+
+
+
 
 
 const MEGA = "assets/sounds/musMegaman.mp3";
@@ -260,125 +268,125 @@ let platformsLength = 0;
 let blockerLength = 0;
 window.addEventListener("keydown", function(e) {
     if (e.defaultPrevented) return;
-    if(level == 99){
-        // alert("a")
-        c = e.key
-        cx = e.altKey?mcx:Math.floor(mcx/32) * 32
-        cy = e.altKey?mcy:Math.floor(mcy/32) * 32
-        if (c == '#') walls.push(new Wall(cx, cy));
-        if (c == '1') walls.push(new WallStick(cx, cy));
-        if (c == 'e') walls.push(new Wall(cx-16, cy+00));
-        if (c == 'E') walls.push(new Wall(cx+16, cy+00));
-        if (c == 'q') walls.push(new Wall(cx-00, cy+16));
-        if (c == 'Q') walls.push(new Wall(cx+00, cy-16));
+    // if(level == 99){
+    //     // alert("a")
+    //     c = e.key
+    //     cx = e.altKey?mcx:Math.floor(mcx/32) * 32
+    //     cy = e.altKey?mcy:Math.floor(mcy/32) * 32
+    //     if (c == '#') walls.push(new Wall(cx, cy));
+    //     if (c == '1') walls.push(new WallStick(cx, cy));
+    //     if (c == 'e') walls.push(new Wall(cx-16, cy+00));
+    //     if (c == 'E') walls.push(new Wall(cx+16, cy+00));
+    //     if (c == 'q') walls.push(new Wall(cx-00, cy+16));
+    //     if (c == 'Q') walls.push(new Wall(cx+00, cy-16));
 
-        if (c == '%') walls.push(new Wall2(cx, cy));
-        if (c == '?') fake.push(new WallI(cx, cy, false));
-        if (c == '!') walls.push(new WallI(cx, cy));
+    //     if (c == '%') walls.push(new Wall2(cx, cy));
+    //     if (c == '?') fake.push(new WallI(cx, cy, false));
+    //     if (c == '!') walls.push(new WallI(cx, cy));
 
-        if (c == '+') blocker.push(new WallI(cx, cy, true, false));
+    //     if (c == '+') blocker.push(new WallI(cx, cy, true, false));
 
-        if (c == 's') saves.push(new Save(cx, cy));
-        if (c == '~') platforms.push(new Platform(cx, cy, 2, 0));
-        if (c == '_') platforms.push(new Platform(cx, cy+16, 0, 0));
-        if (c == '-') platforms.push(new Platform(cx, cy, 0, 1));
-        if (c == '0') platforms.push(new Platform(cx, cy, 0, 2));
+    //     if (c == 's') saves.push(new Save(cx, cy));
+    //     if (c == '~') platforms.push(new Platform(cx, cy, 2, 0));
+    //     if (c == '_') platforms.push(new Platform(cx, cy+16, 0, 0));
+    //     if (c == '-') platforms.push(new Platform(cx, cy, 0, 1));
+    //     if (c == '0') platforms.push(new Platform(cx, cy, 0, 2));
 
-        if (c == '=') platforms.push(new Platform(cx, cy, 0, 0));
+    //     if (c == '=') platforms.push(new Platform(cx, cy, 0, 0));
 
-        if (c == '^') spikes.push(new SpikeUp(cx, cy));
+    //     if (c == '^') spikes.push(new SpikeUp(cx, cy));
 
-        if (c == '6') spikes.push(new SpikeUp(cx, cy-16));
-        if (c == '5') spikes.push(new SpikeUp(cx, cy+16));
-        if (c == 'x'){ spikes.push(new SpikeUp(cx-16, cy));spikes.push(new SpikeDown(cx+1, cy));}
-        if (c == 'X'){ spikes.push(new SpikeBlock(cx, cy));}
-        if (c == '7'){ spikes.push(new SpikeDown(cx-16 , cy));}
-        if (c == "'"){ spikes.push(new SpikeDown(cx+16 , cy));}
+    //     if (c == '6') spikes.push(new SpikeUp(cx, cy-16));
+    //     if (c == '5') spikes.push(new SpikeUp(cx, cy+16));
+    //     if (c == 'x'){ spikes.push(new SpikeUp(cx-16, cy));spikes.push(new SpikeDown(cx+1, cy));}
+    //     if (c == 'X'){ spikes.push(new SpikeBlock(cx, cy));}
+    //     if (c == '7'){ spikes.push(new SpikeDown(cx-16 , cy));}
+    //     if (c == "'"){ spikes.push(new SpikeDown(cx+16 , cy));}
 
-        if (c == '/'){ spikes.push(new SpikeUp(cx+16 , cy));}
-        if (c == ')'){ spikes.push(new SpikeUp(cx+20 , cy));}
+    //     if (c == '/'){ spikes.push(new SpikeUp(cx+16 , cy));}
+    //     if (c == ')'){ spikes.push(new SpikeUp(cx+20 , cy));}
 
-        if (c == '|'){ spikes.push(new SpikeUp(cx-16 , cy));}
-
-
-
-        if (c == 'V') spikes.push(new SpikeDown(cx, cy));
-        if (c == 'v') spikes.push(new SpikeDown(cx, cy-16));
-
-        if (c == 'u') spikes.push(new SpikeDown(cx, cy, 2));
-        if (c == 'U') {spikes.push(new SpikeDown(cx, cy-05));  fake.push(new WallI(cx, cy, false));}
-
-        if (c == '<') spikes.push(new SpikeLeft(cx, cy));
-        if (c == '>') spikes.push(new SpikeRight(cx, cy));
-        if (c == '{') spikes.push(new SpikeLeft(cx-16, cy));
-        if (c == '}') spikes.push(new SpikeRight(cx+16, cy));
-        if (c == '[') spikes.push(new SpikeLeft(cx+16, cy));
-        if (c == ']') spikes.push(new SpikeRight(cx-16, cy));
-        if (c == '.') spikes.push(new SpikeRight(cx, cy, 1));
-        if (c == '@') spikes.push(new SpikeRight(cx, cy, Math.random()*3));
+    //     if (c == '|'){ spikes.push(new SpikeUp(cx-16 , cy));}
 
 
-        if (c == 'b') blocker.push(new Blocker(cx, cy));
-        if (c == 'w') warp = new Warp(cx, cy);
-        if (c == 'W') fake.push(new Water(cx, cy));
 
-        if (c == 'j') {fake.push(new Jumper(cx, cy, 15, sprJumpy)); blocker.push(new Blocker(cx, cy));}
-        if (c == 'T') {fake.push(new Jumper(cx, cy+5, 15, sprJumpy)); fake.push(new WallI(cx, cy, false));}
-        if (c == 'J') fake.push(new Jumper(cx, cy, 20, sprJumpest));
+    //     if (c == 'V') spikes.push(new SpikeDown(cx, cy));
+    //     if (c == 'v') spikes.push(new SpikeDown(cx, cy-16));
 
-        if (c == 'c') walls.push(new Conveyer(cx, cy, 1));
-        if (c == 'C') walls.push(new Conveyer(cx, cy, 4));
+    //     if (c == 'u') spikes.push(new SpikeDown(cx, cy, 2));
+    //     if (c == 'U') {spikes.push(new SpikeDown(cx, cy-05));  fake.push(new WallI(cx, cy, false));}
 
-        if (c == 'd') walls.push(new Conveyer(cx, cy, -1));
-        if (c == 'D') walls.push(new Conveyer(cx, cy, -4));
-
-        // if (c == 'y') crates.push(new Crate(cx, cy, false, 25, 25));
-        if (c == "H") platforms.push(new WallPlat(cx,cy,sprWall,1,0))
-        if (c == "h") platforms.push(new WallPlat(cx,cy,sprWall,0,1))
-
-        if (c == "o") platforms.push(new WallPlat(cx,cy,sprPauser,0,2))
-        if (c == "O") platforms.push(new WallPlat(cx,cy,sprPauser,2,0))
-        if (c == "8") platforms.push(new WallPlat(cx,cy,sprPauser,2,2))
-
-        if (c == 'r') fake.push(new OneWayWall(cx, cy, false));
-        if (c == 'R') fake.push(new OneWayWall(cx, cy, true));
+    //     if (c == '<') spikes.push(new SpikeLeft(cx, cy));
+    //     if (c == '>') spikes.push(new SpikeRight(cx, cy));
+    //     if (c == '{') spikes.push(new SpikeLeft(cx-16, cy));
+    //     if (c == '}') spikes.push(new SpikeRight(cx+16, cy));
+    //     if (c == '[') spikes.push(new SpikeLeft(cx+16, cy));
+    //     if (c == ']') spikes.push(new SpikeRight(cx-16, cy));
+    //     if (c == '.') spikes.push(new SpikeRight(cx, cy, 1));
+    //     if (c == '@') spikes.push(new SpikeRight(cx, cy, Math.random()*3));
 
 
-        if (c == 'P') walls.push(new Poof(cx, cy));
-        if (c == '$') walls.push(new Poof(cx, cy, 64, 64));
-        if (c == 't') fake.push(new Tree(cx, cy-135));
+    //     if (c == 'b') blocker.push(new Blocker(cx, cy));
+    //     if (c == 'w') warp = new Warp(cx, cy);
+    //     if (c == 'W') fake.push(new Water(cx, cy));
+
+    //     if (c == 'j') {fake.push(new Jumper(cx, cy, 15, sprJumpy)); blocker.push(new Blocker(cx, cy));}
+    //     if (c == 'T') {fake.push(new Jumper(cx, cy+5, 15, sprJumpy)); fake.push(new WallI(cx, cy, false));}
+    //     if (c == 'J') fake.push(new Jumper(cx, cy, 20, sprJumpest));
+
+    //     if (c == 'c') walls.push(new Conveyer(cx, cy, 1));
+    //     if (c == 'C') walls.push(new Conveyer(cx, cy, 4));
+
+    //     if (c == 'd') walls.push(new Conveyer(cx, cy, -1));
+    //     if (c == 'D') walls.push(new Conveyer(cx, cy, -4));
+
+    //     // if (c == 'y') crates.push(new Crate(cx, cy, false, 25, 25));
+    //     if (c == "H") platforms.push(new WallPlat(cx,cy,sprWall,1,0))
+    //     if (c == "h") platforms.push(new WallPlat(cx,cy,sprWall,0,1))
+
+    //     if (c == "o") platforms.push(new WallPlat(cx,cy,sprPauser,0,2))
+    //     if (c == "O") platforms.push(new WallPlat(cx,cy,sprPauser,2,0))
+    //     if (c == "8") platforms.push(new WallPlat(cx,cy,sprPauser,2,2))
+
+    //     if (c == 'r') fake.push(new OneWayWall(cx, cy, false));
+    //     if (c == 'R') fake.push(new OneWayWall(cx, cy, true));
 
 
-        if (c == 'p') player = new Kid(cx, cy);
-
-        if (walls.length != wallsLength) {wallsLength = walls.length;history.push(["walls",wallsLength])}
-        if (spikes.length != spikesLength) {spikesLength = spikes.length;history.push(["spikes",spikesLength])}
-        if (fake.length != fakeLength) {fakeLength = fake.length;history.push(["fake",fakeLength])}
-        if (blocker.length != blockerLength) {blockerLength = blocker.length;history.push(["blocker",blockerLength])}
-        if (platforms.length != platformsLength) {platformsLength = platforms.length;history.push(["platforms",platformsLength])}
+    //     if (c == 'P') walls.push(new Poof(cx, cy));
+    //     if (c == '$') walls.push(new Poof(cx, cy, 64, 64));
+    //     if (c == 't') fake.push(new Tree(cx, cy-135));
 
 
-        if (c == "Backspace") {
-            if(!e.altKey){
-                let findWall = walls.findIndex((e)=>{return e.x == cx && e.y == cy});
-                if(findWall != -1) walls.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="walls"&&e[1]==findWall}), 1)
-                findWall = fake.findIndex((e)=>{return e.x == cx && e.y == cy});
-                if(findWall != -1) fake.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="fake"&&e[1]==findWall}), 1)
-                findWall = platforms.findIndex((e)=>{return e.x == cx && e.y == cy});
-                if(findWall != -1) platforms.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="platforms"&&e[1]==findWall}), 1)
-                findWall = spikes.findIndex((e)=>{return e.x == cx && e.y == cy});
-                if(findWall != -1) spikes.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="spikes"&&e[1]==findWall}), 1)
-                findWall = blocker.findIndex((e)=>{return e.x == cx && e.y == cy});
-                if(findWall != -1) blocker.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="blocker"&&e[1]==findWall}), 1)
-                findWall = saves.findIndex((e)=>{return e.x == cx && e.y == cy});
-                if(findWall != -1) saves.splice(findWall,1)
-            }else{
-                let lastElement = history.pop();
-                window[lastElement[0]].splice(lastElement[1]-1,1); 
-            }
+    //     if (c == 'p') player = new Kid(cx, cy);
+
+    //     if (walls.length != wallsLength) {wallsLength = walls.length;history.push(["walls",wallsLength])}
+    //     if (spikes.length != spikesLength) {spikesLength = spikes.length;history.push(["spikes",spikesLength])}
+    //     if (fake.length != fakeLength) {fakeLength = fake.length;history.push(["fake",fakeLength])}
+    //     if (blocker.length != blockerLength) {blockerLength = blocker.length;history.push(["blocker",blockerLength])}
+    //     if (platforms.length != platformsLength) {platformsLength = platforms.length;history.push(["platforms",platformsLength])}
+
+
+    //     if (c == "Backspace") {
+    //         if(!e.altKey){
+    //             let findWall = walls.findIndex((e)=>{return e.x == cx && e.y == cy});
+    //             if(findWall != -1) walls.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="walls"&&e[1]==findWall}), 1)
+    //             findWall = fake.findIndex((e)=>{return e.x == cx && e.y == cy});
+    //             if(findWall != -1) fake.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="fake"&&e[1]==findWall}), 1)
+    //             findWall = platforms.findIndex((e)=>{return e.x == cx && e.y == cy});
+    //             if(findWall != -1) platforms.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="platforms"&&e[1]==findWall}), 1)
+    //             findWall = spikes.findIndex((e)=>{return e.x == cx && e.y == cy});
+    //             if(findWall != -1) spikes.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="spikes"&&e[1]==findWall}), 1)
+    //             findWall = blocker.findIndex((e)=>{return e.x == cx && e.y == cy});
+    //             if(findWall != -1) blocker.splice(findWall,1); history.splice(history.findIndex((e)=>{return e[0]=="blocker"&&e[1]==findWall}), 1)
+    //             findWall = saves.findIndex((e)=>{return e.x == cx && e.y == cy});
+    //             if(findWall != -1) saves.splice(findWall,1)
+    //         }else{
+    //             let lastElement = history.pop();
+    //             window[lastElement[0]].splice(lastElement[1]-1,1); 
+    //         }
             
-        }
-    }
+    //     }
+    // }
     switch (e.key) {
         case "F2":
             resetGame();
@@ -598,7 +606,7 @@ var levels = [
     "#w#V +   ##555^##V#e    #" + //13
     "#W#  + s #Q====Qe  e    #" + //14
     "#PV <%%%P^        E     #" + //15
-    "#P]  ### %%Qq%=%%%      #" + //16
+    "#P]  ### %%Qq%X%%%      #" + //16
     "#    ###                #" + //17
     "#    ###               ~#" + //18
     "#    P~#                #",  //19
@@ -606,7 +614,7 @@ var levels = [
     "%%%%%%%Q  Q%%v    V   %%%" + //1
     "#ps    1  E       ^   ###" + //2
     "#%%%%  1##E   ^>< V    ##" + //3
-    "#7 '1> 1uuE   V   ^     #" + //4
+    "#7 '1> 1uuE   V   ^  a  #" + //4
     "#   1  1$ E   ^  <V     #" + //5
     "  ^ 1 <1  1e  V   v      " + //6 
     " /1[1  1- 1e  ^    +t s  " + //7
@@ -622,9 +630,30 @@ var levels = [
     "#] [#   # + O           #" + //17
     "#> <#s   q+ O           #" + //18
     "#}w{#%%   #CC55555555555#",  //19
+    //1234567890123456789012345
+    "#######xxxxx#############" + //1
+    "#p   sR+ VX  !     !  s #" + //2
+    "#%WWW%%/   ]!  ! !   ## #" + //3
+    "#     #_X= {  !!*! !!#  #" + //4
+    "#  a  #] { ]!  ?!!   #  #" + //5
+    "#     # _]<  !! ! !! # <#" + //6 
+    "#A=;=←# X }!    !    #  #" + //7
+    "#       X <    !^^^^^#j #" + //8
+    "#  ↑^^  X }^w^^^####### #" + //9
+    "#%%%??%%7 #######    #  #" + //10
+    "#         sq   q e ^ P. P" + //11
+    "# <##T###&##=# #   X]#!!#" + //12
+    "#         #u # #_ <X P .P" + //13
+    "#####T##X #  # #>  X #  #" + //14
+    "##V v     # #> <]{ X P. P" + //15
+    "#e ^  s##T7 X [>⭙ _X[#  #" + //16
+    "#  {6_###  oX <] ⭙^# P .P" + //17
+    "#           X   ^6##   j#" + //18
+    "#####T#####^#############",  //19
+    
     
 ];
-levels[99] = "p        w";
+// levels[99] = "p        w";
 var layers = [
     false,
     false,
@@ -680,8 +709,83 @@ var layers = [
                     "          e              " + //18
                     "       #  #              ",  //19
         }
+    ],
+    [
+    {
+            offset: [00, 16],
+            tileset : 1, // 1:Normal, 2:Background, 3:Datalayer
+                   //1234567890123456789012345
+            map:    "                         " + //1
+                    "                         " + //2
+                    "                         " + //3
+                    "                         " + //4
+                    "                         " + //5
+                    "                         " + //6
+                    "                  !!!    " + //7
+                    "                         " + //8
+                    "                         " + //9
+                    "                         " + //10
+                    "                         " + //11
+                    "                         " + //12
+                    "                         " + //13
+                    "                         " + //14
+                    "          >  v           " + //15
+                    "                         " + //16
+                    "                         " + //17
+                    "                         " + //18
+                    "       ++++++            ",  //19
+        },
+        {
+            offset: [00, 00],
+            tileset : 3, // 1:Normal, 2:Background, 3:Datalayer
+                   //1234567890123456789012345
+            map:    "                    3    " + //1
+                    "                         " + //2
+                    "                         " + //3
+                    "                         " + //4
+                    "               3         " + //5
+                    "                         " + //6
+                    "                    #    " + //7
+                    "                         " + //8
+                    "                         " + //9
+                    "                         " + //10
+                    "q     Q                  " + //11
+                    " $            %          " + //12
+                    "                         " + //13
+                    " 4                       " + //14
+                    "                         " + //15
+                    "                         " + //16
+                    "                         " + //17
+                    "                         " + //18
+                    "              5          ",  //19
+        },
+        {
+            offset: [0, 0],
+            tileset : 2, // 1:Normal, 2:Background, 3:Datalayer
+                   //1234567890123456789012345
+            map:    "           ##            " + //1
+                    "#########################" + //2
+                    "#########################" + //3
+                    "##   ####################" + //4
+                    "##   ####################" + //5
+                    "##   ####G###############" + //6
+                    "##   ####G###############" + //7
+                    "## t ####G###############" + //8
+                    "##%%%####G#######      ##" + //9
+                    "#########G###    ########" + //10
+                    " GGGGGGGGGG##############" + //11
+                    " GG        ############# " + //12
+                    " GGGGGGGGG ##############" + //13
+                    "         G GG########### " + //14
+                    " #####GGGG GG############" + //15
+                    " #####GG  GGG########### " + //16
+                    " #####GGGGGGG############" + //17
+                    " #####GGGGGGG########### " + //18
+                    "           #             ",  //19
+        },
     ]
 ];
+var triggerList = [];
 
 function loadLevel(number) {
     var data = levels[number],
@@ -695,6 +799,8 @@ function loadLevel(number) {
     blocker = [];
     fake = [];
     crates = [];
+    backgrounds = [];
+    triggerList = [];
 
     player = 0;
     warp = 0;
@@ -702,6 +808,7 @@ function loadLevel(number) {
     if (number==3) {color = "#322d34";}
     if (number==4) {color = "#0000ff";}
     if (number==1) {color = "#d6cabe";}
+    if (number==5) {color = "#749cdcff";}
     
     sndMusic.play();
     sndMusic.loop = true;
@@ -709,13 +816,13 @@ function loadLevel(number) {
 
     clearInput();
     sndDie.pause();
-    sndPain.pause();
+    // sndPain.pause();
 
     if (layers[number]){
         for (let index = 0; index < layers[number].length; index++) {
             const layer = layers[number][index];
             for (var i = 0; i < 25 * 19; i++) {
-                tileset(layer.tileset,layer.map,i,layer.offset)
+                tileset(layer.tileset,layer.map,i,layer.offset, index)
             }
         }
     }
@@ -729,14 +836,15 @@ function loadLevel(number) {
     updateMarquee();
 }
 
-var walls, saves, spikes, player, fake, crates;
-
-function tileset(number, data, i, offset = [0,0]) {
+var walls, saves, spikes, player, fake, crates, backgrounds;
+//#1egEqQ%?!+s~_-0=^z65xX7'/)|vVuU<>{}[].@aAbwWjTJcCdDhHoO8rRP$tp:
+function tileset(number, data, i, offset = [0,0], index = 0) {
+    c = data.charAt(i);
+    cx = ((i % 25) * 32) + offset[0];
+    cy = ((Math.floor(i / 25)) * 32) + offset[1];
     switch (number) {
         case 1:
-            c = data.charAt(i);
-            cx = ((i % 25) * 32) + offset[0];
-            cy = ((Math.floor(i / 25)) * 32) + offset[1];
+            
             if (c == '#') walls.push(new Wall(cx, cy));
             if (c == '1') walls.push(new WallStick(cx, cy));
             if (c == 'e') walls.push(new Wall(cx-16, cy+00));
@@ -781,6 +889,8 @@ function tileset(number, data, i, offset = [0,0]) {
 
             if (c == 'u') spikes.push(new SpikeDown(cx, cy, 2));
             if (c == 'U') {spikes.push(new SpikeDown(cx, cy-05));  fake.push(new WallI(cx, cy, false));}
+            if (c == '&') {platforms.push(new Platform(cx, cy, 0, 0));  fake.push(new WallI(cx, cy, false));}
+
 
             if (c == '<') spikes.push(new SpikeLeft(cx, cy));
             if (c == '>') spikes.push(new SpikeRight(cx, cy));
@@ -790,6 +900,7 @@ function tileset(number, data, i, offset = [0,0]) {
             if (c == ']') spikes.push(new SpikeRight(cx-16, cy));
             if (c == '.') spikes.push(new SpikeRight(cx, cy, 1));
             if (c == '@') spikes.push(new SpikeRight(cx, cy, Math.random()*3));
+
 
 
             if (c == 'b') blocker.push(new Blocker(cx, cy));
@@ -820,13 +931,81 @@ function tileset(number, data, i, offset = [0,0]) {
 
             if (c == 'P') walls.push(new Poof(cx, cy));
             if (c == '$') walls.push(new Poof(cx, cy, 64, 64));
-            if (c == 't') fake.push(new Tree(cx, cy-135));
+            if (c == 't') backgrounds.push(new Tree(cx, cy-135));
+
+            
+            if (c == 'a') spikes.push(new DeliciousFruit(cx, cy, 0, 10, index+1));
+            if (c == '*') {fake.push(new Trigger(cx, cy, cx+cy));spikes.push(new DeliciousFruit(cx, 0, 0, 10, cx+cy));}
+            if (c == '⭙') spikes.push(new DeliciousFruit(cx, cy, 0, 0, 0));
+            if (c == 'A') spikes.push(new DeliciousFruit(cx, cy, 10, 0, index+1));
+            if (c == '↑') spikes.push(new DeliciousFruit(cx, cy, 0, -10, index+1));
+            if (c == '←') spikes.push(new DeliciousFruit(cx, cy, -10, 0, index+1));
+            
+
+            if (c == ';') fake.push(new Trigger(cx, cy, index+1));
+            if (c == ':') fake.push(new Trigger(cx, cy, index+1, true));
 
 
             if (c == 'p') player = new Kid(cx, cy);
             
-            break;
-    
+        break;
+        case 2:
+            switch (c) {
+                case "#":
+                    backgrounds.push(new Wall(cx,cy, 1))
+                    break;
+                case "3":
+                    backgrounds.push(new Wall(cx,cy, 2))
+                    break;
+
+                case "%":
+                    backgrounds.push(new Wall2(cx,cy, 1))
+                    break;
+                case "5":
+                    backgrounds.push(new Wall2(cx,cy, 2))
+                    break;
+
+                case "G":
+                    backgrounds.push(new Poof(cx,cy, 32, 32, 2))
+                    break;
+
+                case 't':
+                    backgrounds.push(new Tree(cx, cy-135));
+                    break;
+            
+                default:
+                    break;
+            }
+        break;
+        case 3:
+            let cur = 2;
+            if (c == '1') spikes.push(new DeliciousFruit(cx, cy, 0, 10, index+cur));
+            if (c == '!') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == '2') spikes.push(new DeliciousFruit(cx, cy, 0, 10, index+cur));
+            if (c == '@') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == '3') spikes.push(new DeliciousFruit(cx, cy, 0, 10, index+cur));
+            if (c == '#') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == '4') spikes.push(new DeliciousFruit(cx, cy, 0, -10, index+cur));
+            if (c == '$') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == '5') spikes.push(new DeliciousFruit(cx, cy, 0, -10, index+cur));
+            if (c == '%') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == 'q') spikes.push(new DeliciousFruit(cx, cy, 10, 0, index+cur));
+            if (c == 'Q') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == 'w') spikes.push(new DeliciousFruit(cx, cy, 10, 0, index+cur));
+            if (c == 'W') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+            if (c == 'e') spikes.push(new DeliciousFruit(cx, cy, 10, 0, index+cur));
+            if (c == 'E') fake.push(new Trigger(cx, cy, index+cur));
+            cur++;
+
+            if (c == ':') fake.push(new Trigger(cx, cy, index+1, true));
+        break;
         default:
             break;
     }
@@ -849,7 +1028,7 @@ function Warp(x, y) {
         sprite(sprWarp, this.x, this.y)
     };
 }
-function Wall(x, y) {
+function Wall(x, y, background = 0) {
     this.x = x;
     this.y = y;
     this.width = 32;
@@ -862,6 +1041,7 @@ function Wall(x, y) {
                 break;
 
             case 4:
+            case 5:
                 sprite(sprDirt, this.x, this.y)
                 break;
         
@@ -869,6 +1049,10 @@ function Wall(x, y) {
                 sprite(sprWall, this.x, this.y)
                 break;
         }
+        if(background == 3) sprite(sprDim, this.x, this.y);
+        else if(background == 2) sprite(sprDark, this.x, this.y);
+        else if(background == 1) sprite(sprDarker, this.x, this.y);
+
     };
 }
 function WallStick(x, y) {
@@ -893,6 +1077,31 @@ function WallStick(x, y) {
         // other.djump = 0;
         this.flash = true;
         other.vsp = vkUp?0:Math.min(other.vsp, 1);
+    };
+}
+function Trigger(x, y, layer, multiple = false) {
+    this.x = x;
+    this.y = y;
+    this.width = 32;
+    this.height = 32;
+    this.layer = layer;
+    this.timer = 5;
+
+    this.render = function() {
+        if(multiple && triggerList[layer]){
+            if (--this.timer == 0){
+                triggerList[layer] = false
+            }
+        }
+        return;
+    };
+
+    this.collide = function(other){
+        if(triggerList[layer] != true){
+            triggerList[layer] = true;
+            this.timer = 5;
+            playSound(sndFruit);
+        }
     };
 }
 function OneWayWall(x, y, direction) {
@@ -1036,7 +1245,7 @@ function Crate(x, y, breakable = false, width = 32, height = 32) {
     };
 }
 
-function Wall2(x, y) {
+function Wall2(x, y, background = 0) {
     this.x = x;
     this.y = y;
     this.width = 32;
@@ -1048,6 +1257,7 @@ function Wall2(x, y) {
                 break;
 
             case 4:
+            case 5:
                 sprite(sprGrass, this.x, this.y)
                 break;
         
@@ -1055,6 +1265,9 @@ function Wall2(x, y) {
                 sprite(sprWall2, this.x, this.y)
                 break;
         }
+        if(background == 3) sprite(sprDim, this.x, this.y);
+        else if(background == 2) sprite(sprDark, this.x, this.y);
+        else if(background == 1) sprite(sprDarker, this.x, this.y);
     };
 }
 function WallI(x, y, inv = true, doit = true) {
@@ -1069,10 +1282,19 @@ function WallI(x, y, inv = true, doit = true) {
     };
     this.render = function(other) {
         if (!this.invis) {
-            if(level != 3){
-                sprite(sprWall, this.x, this.y)
-            }else{
-                sprite(sprChecker, this.x, this.y)
+            switch (level) {
+                case 3:
+                    sprite(sprChecker, this.x, this.y)
+                    break;
+
+                case 4:
+                case 5:
+                    sprite(sprDirt, this.x, this.y)
+                    break;
+            
+                default:
+                    sprite(sprWall, this.x, this.y)
+                    break;
             }
         }
         //
@@ -1115,7 +1337,7 @@ function Tree(x, y) {
     this.width = 1;
     this.height = 1;
     this.render = function() {
-       sprite(sprTree, this.x, this.y)
+       sprite(sprTree, this.x-32, this.y)
     };
 }
 function Conveyer(x, y, power = 20) {
@@ -1131,7 +1353,7 @@ function Conveyer(x, y, power = 20) {
        sprite(power > 0 ? sprConveyer : sprConveyer2, this.x, this.y)
     };
 }
-function Poof(x, y, width = 32, height = 32) {
+function Poof(x, y, width = 32, height = 32, background = 0) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -1145,7 +1367,9 @@ function Poof(x, y, width = 32, height = 32) {
     };
     this.render = function() {
         sprite_ext(sprJumpest, 0, 0, 32, 32, this.x, this.y, width, height)
-
+        if(background == 3) sprite(sprDim, this.x, this.y);
+        else if(background == 2) sprite(sprDark, this.x, this.y);
+        else if(background == 1) sprite(sprDarker, this.x, this.y);
     };
 }
 
@@ -1269,6 +1493,46 @@ function SpikeRight(x, y, hsp = 0, random = false) {
             if (coll) hsp = -hsp;
             x += hsp;
         }
+    };
+}
+function DeliciousFruit(x, y, hsp = 0, vsp = 0, layer = 0) {
+    this.x = x+4;
+    this.y = y+4;
+    this.width = 24;
+    this.height = 24;
+
+    this.hsp = 0;
+    this.vsp = 0;
+    this.shsp = hsp;
+    this.svsp = vsp;
+
+    this.layer = layer;
+    this.frame = 0;
+    this.frspd = 0.10;
+    this.frnum = 4;
+    this.dead = 0;
+
+    this.render = function() {
+        if(!this.dead) sprite((this.frame > 2)?sprFruit:sprFruit2, this.x, this.y)
+    };
+    this.hitcheck = function(other) {
+        this.height = 16;
+        this.width = 16;
+        //function intersectRect(r1, r2, offx, offy) 
+        return intersectRect(this, other, 4, 4);
+    };
+    this.update = function() {
+        this.frame = (this.frame + this.frspd) % this.frnum;
+        if (!triggerList[layer]) return;
+        with(this) {
+            if (!dead){
+                x += shsp;
+                y += svsp;
+                if(x > 800) dead = 1;
+                if(x < 0) dead = 1;
+            }
+        }
+        
     };
 }
 
@@ -1551,14 +1815,14 @@ function Kid(x, y) {
                     }
                     
                     if ((y + 12 - vsp / 2 <= coll.y)) {
-                        y = coll.y - height;
+                        y = coll.y - height-1;
                         if (vsp >= 0) jump = 0;
                         vsp = 0;
                     }else if(intersectRect(this, coll, 0, 1 + coll.vsp)  &&  coll.vsp > 0 && findWall(this,0,1,"just") && coll.wallplat && !coll.pause){
                         kill()
                     }
-                    // if (findWall(this,0,-1,"just") && coll.wallplat && coll.vsp < 0) kill()
-                    // if (findWall(this ,0,1,"just") && coll.wallplat && coll.vsp > 0) kill()
+                    if (findWall(this,0,-1,"just") && coll.wallplat && coll.vsp < 0) kill()
+                    if (findWall(this ,0,1,"just") && coll.wallplat && coll.vsp > 0) kill()
                     if (findWall(this,1,0,"just") && coll.wallplat && coll.hsp > 0 && y-0.5 > coll.y && !coll.pause) kill()
                     if (findWall(this,-1,0,"just") && coll.wallplat && coll.hsp < 0 && y-0.5 > coll.y && !coll.pause) kill()
                     if (intersectRect(this,coll,0,-1) && coll.wallplat) {y = coll.y + coll.height; vsp = Math.max(0,coll.vsp)}
@@ -1620,7 +1884,7 @@ function Kid(x, y) {
         deaths++;
         playSound(sndPain);
         playSound(sndDie);
-        sndDie.volume = JSON.parse(localStorage.muted) ? 0 : 1;
+        sndDie.volume = JSON.parse(localStorage.muted) ? 0 : 0.67;
         // sndDie.playbackRate = 1
         sndMusic.volume = 0;
         this.dead = 1;
@@ -1737,7 +2001,7 @@ function systemUpdate() {
             }
         }
 
-         [].concat(spikes,crates,platforms,fake,walls,saves,blood,bullets).forEach(element => {
+         [].concat(backgrounds,spikes,crates,platforms,fake,walls,saves,blood,bullets).forEach(element => {
             if (element.render) element.render();
         });
         
@@ -1748,6 +2012,22 @@ function systemUpdate() {
             con2d.fillStyle = "black";
             con2d.font = "bold 20px serif"
             con2d.fillText("<-shoot", 100, 500);
+        }
+        else if (level == 4) {
+            con2d.fillStyle = "white";
+            con2d.font = "bold 20px serif"
+            con2d.fillText("<-shoot", 600, 550);
+            con2d.fillText("sticky->",150, 50);
+        }
+        else if (level == 1) {
+            con2d.fillStyle = "white";
+            con2d.font = "bold 20px serif"
+            con2d.fillText("<-warp", 700, 50);
+        }else if (level == 5) {
+            con2d.fillStyle = "white";
+            con2d.font = "bold 20px serif"
+            con2d.fillText("delicious ", 20, 130);
+            con2d.fillText("fruit-> ", 45, 150);
         }
         con2d.fillStyle = "white";
         con2d.font = "bold 15px "
