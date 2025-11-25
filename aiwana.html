@@ -14,6 +14,7 @@ var canvas = document.getElementById('canvas'),
     // canvas.width = 800 * dpr;
     // canvas.height = 608 * dpr;
     // con2d.scale(dpr, dpr);
+    if( localStorage.muted == undefined ) localStorage.muted = false;
     con2d.imageSmoothingEnabled = false;
     function resizeCanvas() {
         // let scale = Math.min(
