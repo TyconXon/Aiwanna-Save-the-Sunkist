@@ -2043,7 +2043,7 @@ function saveGame() {
         worldData.player = [player.x, player.y];
         worldData.warp = [warp.x, warp.y];
 
-        localStorage.worldData = JSON.stringify(worldData);
+        localStorage.worldData = JSON.stringify(worldData, null, 2);
         localStorage.customPosition = JSON.stringify([player.x,player.y]);
     }
 };
