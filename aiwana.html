@@ -263,8 +263,8 @@ canvas.addEventListener("mousedown", function(e){
         player.x = getMousePos(canvas, e).x
         player.y = getMousePos(canvas, e).y
     }else if(level == 99){
-        cx = e.altKey?mcx:Math.floor(mcx/32) * 32
-        cy = e.altKey?mcy:Math.floor(mcy/32) * 32
+        cx = e.ctrlKey?mcx-16:Math.floor(mcx/32) * 32
+        cy = e.ctrlKey?mcy-16:Math.floor(mcy/32) * 32
         if(e.button == 0){
             c = lastKey
             editorTileset(c,cx,cy)
@@ -304,9 +304,9 @@ window.addEventListener("keydown", function(e) {
     if (e.defaultPrevented) return;
     if(level == 99){
         c = e.key
-        cx = e.altKey?mcx:Math.floor(mcx/32) * 32
-        cy = e.altKey?mcy:Math.floor(mcy/32) * 32
-        lastKey = c;
+        cx = e.altKey?mcx-16:Math.floor(mcx/32) * 32
+        cy = e.altKey?mcy-16:Math.floor(mcy/32) * 32
+        if (c != "Alt" && c != "Control" && c != "Shift" && c != "Backspace") lastKey = c;
         editorTileset(c,cx,cy)
 
         if (walls.length != wallsLength) {wallsLength = walls.length;history.push(["walls",wallsLength])}
@@ -2211,7 +2211,7 @@ function systemUpdate() {
         }
         con2d.fillStyle = "white";
         con2d.font = "bold 15px sans-serif"
-        con2d.fillText(`${player.djump} ${vkZ?"Z":""} ${vkUp?"^":""} ${vkLeft?"<":""} ${vkRight?">":""} ${level==99?lastKey:""}`, (10), (20));
+        con2d.fillText(`${player.djump} ${vkZ?"Z":""} ${vkUp?"^":""} ${vkLeft?"<":""} ${vkRight?">":""} ${level==99?lastKey+`(${Math.round(mcx)},${Math.round(mcy)})`:""}`, (10), (20));
 
         if (finished) {
             alert("clear");
