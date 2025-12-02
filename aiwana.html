@@ -381,7 +381,7 @@ window.addEventListener("keydown", function(e) {
             canvas.style.imageRendering = canvas.style.imageRendering == "pixelated" ? "auto" : "pixelated";
             resizeCanvas();
             break;
-        case "F5":
+        case "f5":
             invin_cable = !invin_cable;
             break;
         case "k":
@@ -397,13 +397,13 @@ window.addEventListener("keydown", function(e) {
             }
             
             break;
-        case "F1":
+        case "f1":
             if(level == 99){
                 copyToClipboard(localStorage.worldData)
                 alert("copied");
             }
             break;
-        case "F3":
+        case "f3":
             if(level == 99){
                 localStorage.worldData = prompt("paste");
                 level = 99;
