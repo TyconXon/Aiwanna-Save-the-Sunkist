@@ -49,7 +49,7 @@ var vkUp = 0,
     vkGamepad = 0;
 var degtorad = Math.PI / 180;
 var started = 0;
-
+var invin_cable = false;
 
 if (console.everything === undefined) {
     console.everything = [];
@@ -115,6 +115,7 @@ window.alert = function(){
 Number.prototype.clamp = function(min, max) {
   return Math.min(Math.max(this, min), max);
 };
+
 
 document.addEventListener("keyup",(ev)=>{
     if(ev.key == "`"){
@@ -380,6 +381,9 @@ window.addEventListener("keydown", function(e) {
             canvas.style.imageRendering = canvas.style.imageRendering == "pixelated" ? "auto" : "pixelated";
             resizeCanvas();
             break;
+        case "F5":
+            invin_cable = !invin_cable;
+            break;
         case "k":
             player.kill();
             break;
@@ -416,6 +420,7 @@ window.addEventListener("keydown", function(e) {
     
     e.preventDefault();
 }, 1);
+
 var controls = {shoot:"z",jump:" ",left:"arrowleft", right:"arrowright", restart:"shift" }
 function rebind(){
     alert("to enter special keys, look at the list here https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values .\n Common keys: shift, alt, control, (space is just one space),etc")
@@ -2040,6 +2045,7 @@ function Kid(x, y) {
         }
     };
     this.kill = function(){
+        if(invin_cable) return;
         deaths++;
         playSound(sndPain);
         playSound(sndDie);
