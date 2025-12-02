@@ -236,10 +236,11 @@ var sprLogos = loadLocalSprite("assets/sprites/logos.png")
 var sprDarker = loadLocalSprite("assets/sprites/darker.png")
 var sprDark = loadLocalSprite("assets/sprites/dark.png")
 var sprDim = loadLocalSprite("assets/sprites/dim.png")
-
-
-
-
+var sprWPlaster = loadLocalSprite("assets/sprites/portal_33.png")
+var sprBPlaster = loadLocalSprite("assets/sprites/portal_34.png")
+var sprConcrete = loadLocalSprite("assets/sprites/portal_07.png")
+var sprTile = loadLocalSprite("assets/sprites/portal_18.png")
+var sprMetal = loadLocalSprite("assets/sprites/portal_01.png")
 
 const MEGA = "assets/sounds/musMegaman.mp3";
 
@@ -517,9 +518,29 @@ function findWall(self, offx, offy, group = walls) {
     }
     for (var i = 0, l = combinedGroup.length; i < l; i++) {
         coll = combinedGroup[i];
-        if (intersectRect(self, coll, offx, offy) && coll != self) return coll;
+        if (intersectRect(self, coll, offx, offy) && coll != self && (!coll.state)) return coll;
     }
     return 0;
+}
+function findWalls(self, offx, offy, group = walls) {
+    let a = false;
+    if(group != walls){
+        if(group == "just") group = walls;
+        a = true;
+    }
+    let combinedGroup = group;
+    if (!self.platform && !a){
+        combinedGroup = group.concat(crates)
+    }
+    if(self.platform || (self.touchplat)){
+        combinedGroup = combinedGroup.concat(platforms)
+    }
+    let returnee = [];
+    for (var i = 0, l = combinedGroup.length; i < l; i++) {
+        coll = combinedGroup[i];
+        if (intersectRect(self, coll, offx, offy) && coll != self) returnee.push(coll);
+    }
+    return returnee;
 }
 // search + shift + backspace -> insert mode
 var levels = [
@@ -640,6 +661,27 @@ var levels = [
     "#  {6_###  oX <] ⭙^# P .P" + //17
     "#           X   ^6##   j#" + //18
     "#####T#####^#############",  //19
+
+    //1234567890123456789012345
+    "#########################" + //1
+    "#                     #w#" + //2
+    "#                      ##" + //3
+    "#                       #" + //4
+    "#                       #" + //5
+    "#                       #" + //6 
+    "#                       #" + //7
+    "#                       #" + //8
+    "#                       #" + //9
+    "#                       #" + //10
+    "#                       #" + //11
+    "#                       #" + //12
+    "#                       #" + //13
+    "#                       #" + //14
+    "###MMMM####             #" + //15
+    "###WWWW####             #" + //16
+    "###mmmm####             #" + //17
+    "#ps    ####             #" + //18
+    "#%%%%%%####%%%%%%%%%%%%%#",  //19
     
     
 ];
@@ -772,6 +814,33 @@ var layers = [
                     " #####GGGGGGG############" + //17
                     " #####GGGGGGG########### " + //18
                     "           #             ",  //19
+        },
+        
+    ],
+    [
+    {
+            offset: [0, 0],
+            tileset : 2, // 1:Normal, 2:Background, 3:Datalayer
+                   //1234567890123456789012345
+            map:    "                         " + //1
+                    " ####################### " + //2
+                    " ####################### " + //3
+                    " ####################### " + //4
+                    " ####################### " + //5
+                    " ####################### " + //6
+                    " ####################### " + //7
+                    " ####################### " + //8
+                    " ####################### " + //9
+                    " ####################### " + //10
+                    " ####################### " + //11
+                    " ####################### " + //12
+                    " ####################### " + //13
+                    " ####################### " + //14
+                    " ####################### " + //15
+                    " ####################### " + //16
+                    " ####################### " + //17
+                    " ####################### " + //18
+                    "                         ",  //19
         },
     ]
 ];
@@ -923,6 +992,9 @@ function tileset(number, data, i, offset = [0,0], index = 0) {
             if (c == '$') walls.push(new Poof(cx, cy, 64, 64));
             if (c == 't') backgrounds.push(new Tree(cx, cy-135));
 
+            if (c == 'm') walls.push(new WallFlip(cx, cy,false));
+            if (c == 'M') walls.push(new WallFlip(cx, cy,true));
+
             
             if (c == 'a') spikes.push(new DeliciousFruit(cx, cy, 0, 10, index+1));
             if (c == '*') {fake.push(new Trigger(cx, cy, cx+cy));spikes.push(new DeliciousFruit(cx, 0, 0, 10, cx+cy));}
@@ -1018,6 +1090,9 @@ function editorTileset(c,cx,cy){
         if (c == '!') walls.push(new WallI(cx, cy));
 
         if (c == '+') blocker.push(new WallI(cx, cy, true, false));
+        
+        if (c == 'n') walls.push(new WallFlip(cx, cy,false));
+        if (c == 'N') walls.push(new WallFlip(cx, cy,true));
 
         if (c == 's') saves.push(new Save(cx, cy));
         if (c == '~') platforms.push(new Platform(cx, cy, 2, 0));
@@ -1149,11 +1224,15 @@ function Wall(x, y, background = 0) {
             case 5:
                 sprite(sprDirt, this.x, this.y)
                 break;
+            case 6:
+                sprite(background?sprMetal:sprConcrete, this.x, this.y)
+                break;
         
             default:
                 sprite(sprWall, this.x, this.y)
                 break;
         }
+        if(level == 6) return;
         if(background == 3) sprite(sprDim, this.x, this.y);
         else if(background == 2) sprite(sprDark, this.x, this.y);
         else if(background == 1) sprite(sprDarker, this.x, this.y);
@@ -1396,6 +1475,9 @@ function Wall2(x, y, background = 0) {
             case 5:
                 sprite(sprGrass, this.x, this.y)
                 break;
+            case 6:
+                sprite(sprTile, this.x, this.y)
+                break;
         
             default:
                 sprite(sprWall2, this.x, this.y)
@@ -1435,6 +1517,39 @@ function WallI(x, y, inv = true, doit = true) {
                     break;
             }
         }
+        //
+    };
+}
+function WallFlip(x, y, initial = false) {
+    this.definition = [getFuncName(),Array.from(arguments)];
+
+    this.x = x;
+    this.y = y;
+    this.initialX = x;
+    this.initialY = y;
+    this.flipBlock = true;
+    this.width = 32;
+    this.height = 32;
+    this.state = initial;
+    with(this){
+        flip = function(){
+            let blah = {width:16,height:16}
+            blah.x = initialX;
+            blah.y = initialY;
+
+            if (intersectRect(blah, player, 4, 4)) {player.kill()}
+            state = !state;
+        };
+        window.hookedJump.push(flip);
+    }
+    
+    
+    this.render = function(other) {
+        sprite(true?sprWPlaster:sprBPlaster, this.x, this.y)
+        if (this.state) {
+            sprite(sprDarker, this.x, this.y);
+        }
+        // sprite_ext(sprWall, 0, 0, 32, 32, this.x, this.y)
         //
     };
 }
@@ -1777,6 +1892,7 @@ function Platform(x, y, hsp, vsp = 0) {
         }
     };
 }
+var hookedJump = [];
 
 function Bullet(x, y, hsp) {
     this.x = x - 1;
@@ -1905,10 +2021,13 @@ function Kid(x, y) {
                 hsp = 0;
 
             }
-            coll = findWall(this, 0, 0, fake);
-            if (coll && coll.collide) {
-                coll.collide(this);
+            let colls = findWalls(this, 0, 0, fake);
+            for (let coll of colls) {
+                if (coll && coll.collide) {
+                    coll.collide(this);
+                }
             }
+            
             if (vkZ) {
                 if (!zlk) {
                     zlk = 1
@@ -1926,6 +2045,11 @@ function Kid(x, y) {
             if (vkUp) {
                 if (!uplk) {
                     uplk = 1;
+                    if (!jump || onplatform || djump){
+                        for (var i = 0, l = hookedJump.length; i < l; i++) {
+                            hookedJump[i]();
+                        }
+                    }
                     if (!jump || onplatform) {
                         jump = 1;
                         vsp = -8.5;
@@ -1937,6 +2061,7 @@ function Kid(x, y) {
                             playSound(sndJump2);
                         }
                     }
+                    
                 }
             } else {
                 if (jump && uplk && vsp < 0) vsp *= 0.45
@@ -1953,14 +2078,16 @@ function Kid(x, y) {
                 coll = findWall(this, 0, 0) ;
                 if (coll) {
                     if (y < coll.y && vsp >= 0) jump = 0;
-                    else {y = coll.y + coll.height;
+                    else {
+                        y = coll.y + coll.height;
                         if (coll.collide) {
-                    coll.collide(this)
-                }
+                            coll.collide(this)
+                        }
                     }
                     vsp = 0;
                     
                 }
+                
             }
             onplatform = 0;
             for (var i = 0, l = platforms.length; i < l; i++) {
@@ -2193,9 +2320,16 @@ function systemUpdate() {
             }
         }
 
-         [].concat(backgrounds,spikes,crates,platforms,fake,walls,saves,blood,bullets).forEach(element => {
-            if (element.render) element.render();
-        });
+        if(level != 6){
+            [].concat(backgrounds,spikes,crates,walls,platforms,fake,saves,blood,bullets).forEach(element => {
+                if (element.render) element.render();
+            });
+        }else{
+            [].concat(backgrounds,walls,spikes,crates,platforms,fake,saves,blood,bullets).forEach(element => {
+                if (element.render) element.render();
+            });
+        }
+        
         
         warp.render();
         player.render();
