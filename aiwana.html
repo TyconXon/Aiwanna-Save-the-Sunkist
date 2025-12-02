@@ -3,7 +3,7 @@
 <div style="text-align:center;">
 <h1>Aiwana save the sunkist!</h1>
 engine by renex, major modifications and levels by Maximus Miller 2<br>
-controls: arrow keys, space, shift, z, p, f, b, f2, m, k
+controls: arrow keys, space, shift, z, p, f, b, f2, m, k, <button onclick="rebind()">click me to rebind</button>
 <h2 id="timer"></h2>
 <canvas id="canvas" width="800" height="608" style="display:inline-block;width:800px;aspect-ratio:800/608;cursor:crosshair;"></canvas>
 <br>
@@ -115,7 +115,6 @@ window.alert = function(){
 Number.prototype.clamp = function(min, max) {
   return Math.min(Math.max(this, min), max);
 };
-
 
 document.addEventListener("keyup",(ev)=>{
     if(ev.key == "`"){
@@ -339,29 +338,28 @@ window.addEventListener("keydown", function(e) {
             
         }
     }
-    switch (e.key) {
-        case "F2":
+    switch (e.key.toLowerCase()) {
+        case "f2":
             resetGame();
             break;
-        case " ":   
+        case controls.jump:   
             if (!started) startGame();
             vkRawUp = 1;
             vkUp = 1;
             break;
-        case "z":
-        case "Z":
+        case controls.shoot:
             vkRawZ = 1;
             vkZ = 1;
             break;
-        case "ArrowLeft":
+        case controls.left:
             vkRawLeft = 1;
             vkLeft = 1;
             break;
-        case "ArrowRight":
+        case controls.right:
             vkRawRight = 1;
             vkRight = 1;
             break;
-        case "Shift":
+        case controls.restart:
             if(level != 99) loadGame();
             break;
         case "r":
@@ -418,21 +416,29 @@ window.addEventListener("keydown", function(e) {
     
     e.preventDefault();
 }, 1);
+var controls = {shoot:"z",jump:" ",left:"arrowleft", right:"arrowright", restart:"shift" }
+function rebind(){
+    alert("to enter special keys, look at the list here https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values .\n Common keys: shift, alt, control, (space is just one space),etc")
+    controls.shoot = prompt("Shoot button?").toLowerCase()
+    controls.jump = prompt("Jump?").toLowerCase()
+    controls.left = prompt("Left?").toLowerCase()
+    controls.right = prompt("Right?").toLowerCase()
+    controls.restart = prompt("Restart button?").toLowerCase()
+}
 
 window.addEventListener("keyup", function(e) {
     if (e.defaultPrevented) return;
-    switch (e.key) {
-        case " ":
+    switch (e.key.toLowerCase()) {
+        case controls.jump:
             vkRawUp = 0;
             break;
-        case "z":
-        case "Z":
+        case controls.shoot:
             vkRawZ = 0;
             break;
-        case "ArrowLeft":
+        case controls.left:
             vkRawLeft = 0;
             break;
-        case "ArrowRight":
+        case controls.right:
             vkRawRight = 0;
             break;
         default:
