@@ -241,6 +241,10 @@ var sprBPlaster = loadLocalSprite("assets/sprites/portal_34.png")
 var sprConcrete = loadLocalSprite("assets/sprites/portal_07.png")
 var sprTile = loadLocalSprite("assets/sprites/portal_18.png")
 var sprMetal = loadLocalSprite("assets/sprites/portal_01.png")
+var sprGibsFoot = loadLocalSprite("assets/sprites/sprGibsFoot/0.png")
+var sprGibsHead = loadLocalSprite("assets/sprites/sprGibsHead/0.png")
+var sprGibsArm = loadLocalSprite("assets/sprites/sprGibsArm/0.png")
+
 
 const MEGA = "assets/sounds/musMegaman.mp3";
 
@@ -674,13 +678,13 @@ var levels = [
     "#                       #" + //9
     "#                       #" + //10
     "#                       #" + //11
-    "#                       #" + //12
-    "#                       #" + //13
-    "#                       #" + //14
-    "###MMMM####             #" + //15
-    "###WWWW####             #" + //16
-    "###mmmm####             #" + //17
-    "#ps    ####             #" + //18
+    "#^^^^^^                 #" + //12
+    "######X                 #" + //13
+    "#   M X                 #" + //14
+    "#   MmX                 #" + //15
+    "#   MmX                 #" + //16
+    "#  m# X                 #" + //17
+    "#psX#                   #" + //18
     "#%%%%%%####%%%%%%%%%%%%%#",  //19
     
     
@@ -851,6 +855,7 @@ function loadLevel(number) {
         c, cx, cy;
     walls = [];
     saves = [];
+    hookedJump = [];
     spikes = [];
     platforms = [];
     bullets = [];
@@ -1533,11 +1538,11 @@ function WallFlip(x, y, initial = false) {
     this.state = initial;
     with(this){
         flip = function(){
-            let blah = {width:16,height:16}
+            let blah = {width:30,height:30}
             blah.x = initialX;
             blah.y = initialY;
 
-            if (intersectRect(blah, player, 4, 4)) {player.kill()}
+            if (intersectRect(blah, player, 1, 1)) {player.kill();}
             state = !state;
         };
         window.hookedJump.push(flip);
@@ -1865,6 +1870,39 @@ function Blood(x, y, hsp, vsp) {
         }
     };
 }
+function Gib(x, y, hsp, vsp, spr, flip = false) {
+    
+    this.x = x;
+    this.y = y;
+    this.width = 8;
+    this.height = 8;
+    this.render = function() {
+        if (flip == true) {
+            con2d.save();
+            con2d.translate(this.x * 2 + this.width, 0);
+            con2d.scale(-1, 1);
+            
+        }
+        sprite(spr, this.x, this.y)
+        if (flip == true) {
+            con2d.restore();
+        }
+    };
+    this.hsp = hsp;
+    this.vsp = vsp;
+    this.stuck = 0;
+    this.frame = Math.floor(Math.random() * 3);
+    this.grav = 0.1 + Math.random() * 0.2
+    this.update = function() {
+        with(this) if (!stuck) {
+            vsp += grav;
+            coll = findWall(this, hsp, vsp) || findWall(this,hsp,vsp,platforms);
+            if (coll && Math.random() > 0.5) stuck = 1;
+            x += hsp;
+            y += vsp;
+        }
+    };
+}
 
 function Platform(x, y, hsp, vsp = 0) {
     this.definition = [getFuncName(),Array.from(arguments)];
@@ -2003,8 +2041,10 @@ function Kid(x, y) {
                 for (i = 0; i < 40; i += 1) {
                     var d = Math.floor(Math.random() * 36) * 10;
                     var s = Math.random() * 6;
-                    blood.push(new Blood(x + 5, y + 12, Math.cos(d * degtorad) * s, -Math.sin(d * degtorad) * s))
+                    blood.push(new Blood(x + 5+hsp, y + 12+vsp, Math.cos(d * degtorad) * s - hsp, -Math.sin(d * degtorad) * s - vsp))
                 }
+            }
+            if(dead < 3){
             }
         } else {
             if (h != 0) xscale = h;
@@ -2179,6 +2219,33 @@ function Kid(x, y) {
         sndDie.volume = JSON.parse(localStorage.muted) ? 0 : 0.67;
         // sndDie.playbackRate = 1
         sndMusic.volume = 0;
+        with(this){
+
+            let d = Math.floor(Math.random() * 36) * 10;
+            let s = Math.random() * 6;
+            blood.push(new Gib(x-5,y-1,hsp, vsp-1, sprGibsHead))
+
+
+            //Arms
+            d = Math.floor(Math.random() * 36) * 10;
+            s = Math.random() * 6;
+            blood.push(new Gib(x+10,y+10,hsp, vsp*0.5, sprGibsArm, true))
+            
+            d = Math.floor(Math.random() * 36) * 10;
+            s = Math.random() * 6;
+            blood.push(new Gib(x-10,y+10,hsp, vsp*0.5, sprGibsArm))
+
+            //Feet
+            d = Math.floor(Math.random() * 36) * 10;
+            s = Math.random() * 6;
+            blood.push(new Gib(x+5,y+20,hsp, vsp*0.5, sprGibsFoot,true))
+
+            d = Math.floor(Math.random() * 36) * 10;
+            s = Math.random() * 6;
+            blood.push(new Gib(x-5,y+20,hsp, vsp*0.5, sprGibsFoot))
+        
+        }
+        
         this.dead = 1;
     }
 }
@@ -2392,8 +2459,8 @@ setTimeout(step, interval);
 
 function step() {
     systemUpdate();
-    // var dt = Date.now() - expected;
-    // expected += interval;
+    var dt = Date.now() - expected;
+    expected += interval;
     setTimeout(step, interval);
 }
 </script>
